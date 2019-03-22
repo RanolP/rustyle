@@ -1,0 +1,17 @@
+[package]
+name = "rustyle"
+version = "0.1.0"
+authors = ["RanolP <public.ranolp@gmail.com>"]
+repository = "https://github.com/RanolP/rustyle"
+description = "A new way to represent the CSS stylesheet in Rust"
+license = "MIT"
+readme = "README.md"
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+lazy_static = "1.3.0"
+quote = "0.6.11"
+fasthash = "0.4.0"
