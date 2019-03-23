@@ -7,7 +7,7 @@ fn main() {
 
   let test = rustyle! {
     background-color: #00cccc;
-    #[allow(VendorPrefix)]
+    #[allow(vendor_prefix)]
     -moz-user-select: none;
     background-color: ${red};
   };
