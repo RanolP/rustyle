@@ -1,5 +1,11 @@
 # rustyle
 
+[![Travis (.com)](https://img.shields.io/travis/com/RanolP/rustyle.svg)](https://travis-ci.com/RanolP/rustyle)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/RanolP/rustyle.svg)
+![Crates.io](https://img.shields.io/crates/v/rustyle.svg)
+![Crates.io](https://img.shields.io/crates/d/rustyle.svg)
+![Crates.io](https://img.shields.io/crates/l/rustyle.svg)
+
 A new way to represent the CSS stylesheet in Rust
 
 ## Basic Information
