@@ -1,4 +1,6 @@
 //! This crate provides the [`rustyle!`] macro that allows using CSS-in-Rust for Rust frontend application.
+//! This crate uses some experimental features, so you should use nightly toolchain to use this crate.
+//! Note: This crate absolutely unstable, I recommend you to don't use this crate on a production project.
 //!
 //! [`rustyle!`]: macro.rustyle.html
 
@@ -22,7 +24,7 @@ lazy_static! {
   static ref OUTPUT: String = std::env::var("RUSTYLE_OUTPUT").unwrap_or(String::from("./rustyle"));
 }
 
-/// Create a style class which contains the rusty style code.
+/// Create a style class which contains the rusty css code.
 /// Returns the name of the class.
 ///
 /// ```
