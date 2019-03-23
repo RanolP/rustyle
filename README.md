@@ -42,8 +42,8 @@ Syntax:
 
 ```rust
 let Ruleset = rustyle! {
-  #![ruleset_attribute]
-  #![ruleset_attribute(with_param)]
+  #![ruleset_metadata]
+  #![ruleset_metadata(with_param)]
 }
 ```
 
@@ -63,12 +63,12 @@ Syntax:
 
 ```rust
 let Ruleset = rustyle! {
-  #[rule_attribute]
+  #[rule_metadata]
   the: rule;
 
-  #[rule_attribute]
+  #[rule_metadata]
   the rule {
-    #[rule_attribute(with_param)]
+    #[rule_metadata(with_param)]
     the: rule;
   }
 }
