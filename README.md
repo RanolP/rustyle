@@ -1,5 +1,6 @@
 # rustyle
 
+![rust-nightly](https://img.shields.io/badge/rust-nightly-important.svg)
 [![Travis (.com)](https://img.shields.io/travis/com/RanolP/rustyle.svg)](https://travis-ci.com/RanolP/rustyle)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/RanolP/rustyle.svg)
 ![Crates.io](https://img.shields.io/crates/v/rustyle.svg)
