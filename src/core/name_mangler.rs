@@ -12,17 +12,27 @@ pub fn mangle(source: &str) -> String {
 
   let mut name = String::new();
   let mut unique_identifier = 0;
-  loop {
-    name.push_str("rs-");
-    // add a unique identifier to make more different, but many times the unique identifier ignored
-    let mut hashed = murmur2::hash32(source) * 36 + unique_identifier;
+
+  let append = |name: &mut String, number: u32| {
+    let mut number = number;
+
+    if number == 0 {
+      name.push('0');
+      return;
+    }
 
     // reverse order representation of hash, but don't care
     // hash exists to make it more unique, so the order is not important
-    while hashed > 0 {
-      name.push(char::from_digit(hashed % 36, 36).expect("guaranteed by mod"));
-      hashed /= 36;
+    while number > 0 {
+      name.push(char::from_digit(number % 36, 36).expect("guaranteed by mod"));
+      number /= 36;
     }
+  };
+
+  loop {
+    name.push_str("rs-");
+    append(&mut name, unique_identifier);
+    append(&mut name, murmur2::hash32(source));
 
     if !names.contains(&name) {
       break;
