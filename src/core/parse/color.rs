@@ -1,7 +1,7 @@
 use crate::core::csstype::{ColorParseError, Cssifiable, RgbColor};
 use proc_macro::{Span, TokenTree};
 
-pub fn parse_color<I>(tokens: &mut I) -> Option<impl Cssifiable>
+pub fn parse_color<I>(tokens: &mut I) -> Option<(impl Cssifiable, Span)>
 where
   I: Iterator<Item = TokenTree>,
 {
@@ -15,15 +15,15 @@ where
   }
 }
 
-pub fn parse_color_hex<I>(sharp: TokenTree, tokens: &mut I) -> Option<RgbColor>
+pub fn parse_color_hex<I>(sharp: TokenTree, tokens: &mut I) -> Option<(RgbColor, Span)>
 where
   I: Iterator<Item = TokenTree>,
 {
   let invalid_hex = |span: Span| span.error("Invalid hex color").emit();
   if let Some(token) = tokens.next() {
-    let parsed_color = format!("#{}", token.to_string()).parse::<RgbColor>();
+    let parsed_color = RgbColor::parse_hex(&format!("#{}", token.to_string()));
     match parsed_color {
-      Ok(color) => Some(color),
+      Ok(color) => Some((color, token.span())),
       Err(cause) => match cause {
         ColorParseError::StringEmpty | ColorParseError::NotAHexColor => {
           panic!("guaranteed by if let")

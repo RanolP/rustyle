@@ -1,9 +1,9 @@
 use crate::core::csstype::{Color, HslColor};
 use std::cmp::Ordering::Equal;
-use std::str::FromStr;
 
 #[derive(Debug)]
 pub struct RgbColor {
+  pub origin: String,
   pub red: u8,
   pub green: u8,
   pub blue: u8,
@@ -11,8 +11,14 @@ pub struct RgbColor {
 }
 
 impl Color for RgbColor {
+  fn origin(&self) -> String {
+    self.origin.clone()
+  }
+
   fn as_rgb(&self) -> RgbColor {
     RgbColor {
+      origin: self.origin.clone(),
+
       red: self.red,
       green: self.green,
       blue: self.blue,
@@ -55,6 +61,7 @@ impl Color for RgbColor {
     };
 
     HslColor {
+      origin: self.origin.clone(),
       hue: hue,
       saturation: saturation,
       lightness: lightness,
@@ -69,10 +76,8 @@ pub enum ColorParseError {
   InvalidHexColor,
 }
 
-impl FromStr for RgbColor {
-  type Err = ColorParseError;
-
-  fn from_str(input: &str) -> Result<Self, Self::Err> {
+impl RgbColor {
+  pub fn parse_hex(input: &str) -> Result<RgbColor, ColorParseError> {
     if input.is_empty() {
       Err(ColorParseError::StringEmpty)?
     }
@@ -105,24 +110,28 @@ impl FromStr for RgbColor {
 
     match color.len() {
       3 => Ok(RgbColor {
+        origin: input.to_string(),
         red: parse(&read(1)),
         green: parse(&read(1)),
         blue: parse(&read(1)),
         alpha: 0xff,
       }),
       4 => Ok(RgbColor {
+        origin: input.to_string(),
         red: parse(&read(1)),
         green: parse(&read(1)),
         blue: parse(&read(1)),
         alpha: parse(&read(1)),
       }),
       6 => Ok(RgbColor {
+        origin: input.to_string(),
         red: parse(&read(2)),
         green: parse(&read(2)),
         blue: parse(&read(2)),
         alpha: 0xff,
       }),
       8 => Ok(RgbColor {
+        origin: input.to_string(),
         red: parse(&read(2)),
         green: parse(&read(2)),
         blue: parse(&read(2)),

@@ -6,13 +6,25 @@ pub fn parse_declaration<I: 'static>(tokens: &mut I) -> Option<DeclarationNode>
 where
   I: Iterator<Item = TokenTree>,
 {
+  let mut first = None;
   let mut key = Vec::<TokenTree>::new();
   let mut ignore_tails = false;
 
   while let Some(token) = tokens.next() {
+    if first.is_none() {
+      first = Some(token.clone());
+    }
+
     if ignore_tails {
       if let TokenTree::Punct(ref punct) = token {
         if punct.as_char() == ';' {
+          first
+            .expect("Always exists")
+            .span()
+            .join(token.span())
+            .expect("Always in the same file")
+            .error("Invalid declaration")
+            .emit();
           break;
         }
       }
@@ -62,8 +74,9 @@ where
 
         let expr = parse_expression(tokens);
 
-        if let Some(expr) = expr {
+        if let Some((expr, span)) = expr {
           let result = DeclarationNode {
+            range: (first.expect("Always exists").span(), span),
             name: key_str,
             value: Box::new(expr),
           };

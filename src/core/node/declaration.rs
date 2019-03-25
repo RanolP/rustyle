@@ -1,7 +1,10 @@
+use super::Node;
 use crate::core::csstype::Cssifiable;
-use crate::core::node::Node;
+use proc_macro::Span;
 
+#[derive(Debug)]
 pub struct DeclarationNode {
+  pub range: (Span, Span),
   pub name: String,
   pub value: Box<Cssifiable>,
 }
@@ -9,6 +12,10 @@ pub struct DeclarationNode {
 impl Node for DeclarationNode {
   fn name(&self) -> &'static str {
     "Declaration"
+  }
+
+  fn range(&self) -> Option<(Span, Span)> {
+    Some(self.range)
   }
 
   fn generate_code(&self, _: &str) -> String {

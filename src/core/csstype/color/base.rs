@@ -3,12 +3,18 @@ use crate::core::csstype::{HslColor, RgbColor};
 use std::fmt::Debug;
 
 pub trait Color: Debug {
+  fn origin(&self) -> String;
+
   fn as_rgb(&self) -> RgbColor;
 
   fn as_hsl(&self) -> HslColor;
 }
 
 impl<T: Color> Cssifiable for T {
+  fn origin(&self) -> String {
+    self.origin()
+  }
+
   fn cssify(&self) -> String {
     let rgb = self.as_rgb();
     let mut result = String::new();

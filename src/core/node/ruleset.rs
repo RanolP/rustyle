@@ -1,12 +1,19 @@
-use crate::core::node::{DeclarationNode, Node};
+use super::{DeclarationNode, Node};
+use proc_macro::Span;
 
+#[derive(Debug)]
 pub struct RulesetNode {
+  pub range: Option<(Span, Span)>,
   pub declarations: Vec<DeclarationNode>,
 }
 
 impl Node for RulesetNode {
   fn name(&self) -> &'static str {
     "Ruleset"
+  }
+
+  fn range(&self) -> Option<(Span, Span)> {
+    self.range
   }
 
   fn generate_code(&self, base_class: &str) -> String {
