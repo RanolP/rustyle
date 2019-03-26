@@ -15,6 +15,10 @@ impl Color for RgbColor {
     self.origin.clone()
   }
 
+  fn alpha(&self) -> u8 {
+    self.alpha
+  }
+
   fn as_rgb(&self) -> RgbColor {
     RgbColor {
       origin: self.origin.clone(),

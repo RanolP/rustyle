@@ -23,7 +23,7 @@ where
             .span()
             .join(token.span())
             .expect("Always in the same file")
-            .error("Invalid declaration")
+            .error("Invalid expression assigned")
             .emit();
           break;
         }

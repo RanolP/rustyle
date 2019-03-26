@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use std::iter::FromIterator;
 
-pub fn css_use_impl(item: TokenStream) -> TokenStream {
+pub fn css_use(item: TokenStream) -> TokenStream {
   // todo: value inlining
   // println!("CSS USE\n{:?}\n", item);
 

@@ -1,5 +1,5 @@
-use crate::core::node::MetadataNode;
-use proc_macro::{Delimiter, Span, TokenTree};
+use crate::core::node::{MetadataNode, MetadataType};
+use proc_macro::{Delimiter, TokenTree};
 use std::iter::Peekable;
 
 pub fn parse_rule_metadata<I: 'static>(
@@ -21,15 +21,24 @@ where
     let mut tokens = group.stream().into_iter();
     let current = tokens.next();
     let name = match current {
-      Some(TokenTree::Ident(ref token)) => token.to_string(),
+      Some(TokenTree::Ident(ref token)) => token,
       _ => {
-        group.span().error("Metadata name is invalid").emit();
+        group.span().error("Metadata name is not valid").emit();
         return None;
       }
     };
 
     let group = match tokens.next() {
-      Some(TokenTree::Group(ref token)) => Some(token.stream()),
+      Some(TokenTree::Group(ref token)) => {
+        if token.delimiter() != Delimiter::Parenthesis {
+          token
+            .span()
+            .error("Metadata should be wrapped with ()")
+            .emit();
+          return None;
+        }
+        Some(token.stream())
+      }
       None => None,
 
       Some(token) => {
@@ -37,16 +46,22 @@ where
           .span()
           .join(tokens.last().unwrap_or(token).span())
           .expect("In the same file")
-          .error("Metadata parameters are invalid")
+          .error("Metadata parameters are not valid")
           .emit();
         return None;
       }
     };
 
-    sharp.span().help(format!("Name is {:?}", name)).emit();
-    sharp.span().help(format!("Name is {:?}", group)).emit();
-
-    None
+    if let Some(group) = group {
+      None
+    } else {
+      Some(MetadataNode {
+        metadata_type: MetadataType::Rule,
+        method_name: name.to_string(),
+        parameters: Vec::new(),
+        range: (sharp.span(), name.span()),
+      })
+    }
   } else {
     let mut span = if let Some(token) = token {
       sharp.span().join(token.span()).expect("In the same file")

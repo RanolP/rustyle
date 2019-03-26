@@ -5,6 +5,8 @@ use std::fmt::Debug;
 pub trait Color: Debug {
   fn origin(&self) -> String;
 
+  fn alpha(&self) -> u8;
+
   fn as_rgb(&self) -> RgbColor;
 
   fn as_hsl(&self) -> HslColor;
@@ -31,6 +33,9 @@ impl<T: Color> Cssifiable for T {
   }
 
   fn optimized_cssify(&self) -> String {
+    if self.alpha() == 0 {
+      return "#0000".into();
+    }
     let cssified = self.cssify();
     let cssified_without_sharp = &cssified[1..];
     // we knew the cssified result(does not including #) has a length 6 or 8
