@@ -12,7 +12,7 @@ pub trait Color: Debug {
   fn as_hsl(&self) -> HslColor;
 }
 
-impl<T: Color> Cssifiable for T {
+impl<T: Color + 'static> Cssifiable for T {
   fn origin(&self) -> String {
     self.origin()
   }

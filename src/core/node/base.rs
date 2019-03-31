@@ -3,14 +3,13 @@ use proc_macro::Span;
 pub trait Node {
   fn name(&self) -> &'static str;
 
-  fn range(&self) -> Option<(Span, Span)> {
+  fn span(&self) -> Option<Span> {
     None
   }
 
   fn generate_code(&self, base_class: &str) -> String {
     self
-      .range()
-      .map(|(a, b)| a.join(b).unwrap_or(b))
+      .span()
       .unwrap_or(Span::call_site())
       .error(format!(
         "CodeGenerator not implemented for '{}', at css class '{}'",

@@ -1,24 +1,64 @@
-use crate::core::node::{DeclarationNode, RulesetNode};
-use crate::core::parse::{parse_declaration, parse_rule_metadata};
-use proc_macro::{Delimiter, Span, TokenTree};
+use crate::core::node::{DeclarationNode, MetadataNode, MetadataType, RulesetNode};
+use crate::core::parse::{parse_declaration, parse_metadata};
+use proc_macro::{Delimiter, TokenTree};
 use std::iter::Peekable;
+
+struct DeclarationShouldWarn {
+  vendor_prefix: bool
+}
 
 pub fn parse_ruleset<I: 'static>(tokens: &mut Peekable<I>) -> Option<Box<RulesetNode>>
 where
   I: Iterator<Item = TokenTree>,
 {
   let mut declarations = Vec::<DeclarationNode>::new();
+  let mut ruleset_metadatas = Vec::<MetadataNode>::new();
+  let mut rule_metadatas = Vec::<MetadataNode>::new();
   let mut first = None;
   let mut last = None;
 
-  let mut parse_declaration = |tokens: &mut Peekable<I>| {
+  let mut parse_declaration = |rule_metadatas: &mut Vec<MetadataNode>, tokens: &mut Peekable<I>| {
     let parsed = parse_declaration(tokens);
 
     if let Some(node) = parsed {
       if first.is_none() {
-        first = Some(node.range.0);
+        first = Some(node.range);
       }
-      last = Some(node.range.1);
+      last = Some(node.range);
+
+      let mut should_warn = DeclarationShouldWarn {
+        vendor_prefix: true,
+      };
+
+      for metadata in rule_metadatas.iter_mut() {
+        // todo: separate hard-coded metadata strategies
+        if metadata.method_name == "allow" {
+          match metadata.parameters.len() {
+            0 => {
+              metadata.range.error("one parameter expected but no parameter received");
+              continue;
+            },
+            1 => {},
+            _ => {
+              metadata.range.warning("2 or more parameters received");
+            }
+          }
+
+          match metadata.parameters[0].as_str() {
+            "vendor_prefix" => {
+              should_warn.vendor_prefix = false;
+            }
+            param @ _ => {
+              metadata.range.error(format!("Unexpected parameter {}", param));
+            }
+          }
+        }
+      }
+
+      if node.prefix.len() > 0 && should_warn.vendor_prefix {
+        node.range.warning("Consider removing the vendor prefix").emit();
+      }
+
       declarations.push(node);
     }
   };
@@ -28,7 +68,26 @@ where
       Some(TokenTree::Punct(ref token)) if token.as_char() == '#' => {
         let sharp = tokens.next().expect("Guaranteed by match");
         // todo: unwrap_or(parse_selector())
-        let parsed = parse_rule_metadata(sharp, tokens);
+        
+        let parsed = parse_metadata(sharp, tokens);
+
+        match parsed {
+          Some(node @ MetadataNode {
+            metadata_type: MetadataType::Ruleset,
+            ..
+          }) => {
+            ruleset_metadatas.push(node);
+          },
+          Some(node @ MetadataNode {
+            metadata_type: MetadataType::Rule,
+            ..
+          }) => {
+            rule_metadatas.push(node);
+          }
+          _ => {
+            // do nothing
+          }
+        }
 
         continue;
       }
@@ -56,13 +115,13 @@ where
         break;
       }
       Some(TokenTree::Ident(_))  => {
-        parse_declaration(tokens);
+        parse_declaration(&mut rule_metadatas, tokens);
       }
       Some(TokenTree::Punct(ref token)) if token.as_char() == '-' => {
-        parse_declaration(tokens);
+        parse_declaration(&mut rule_metadatas, tokens);
       }
       Some(TokenTree::Punct(ref token)) if token.as_char() == ';' => {
-        parse_declaration(tokens);
+        parse_declaration(&mut rule_metadatas, tokens);
       }
       None => {
         break;
@@ -79,11 +138,12 @@ where
   } else {
     Some(Box::new(RulesetNode {
       range: if let Some(first) = first {
-        Some((first, last.unwrap_or(first)))
+        Some(first.join(last.unwrap_or(first)).expect("In the same file"))
       } else {
         None
       },
       declarations: declarations,
+      metadatas: ruleset_metadatas,
     }))
   }
 }

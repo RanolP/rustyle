@@ -54,7 +54,7 @@ pub fn rustyle(input: TokenStream) -> TokenStream {
     Ok(file) => file,
   };
 
-  css_files.insert(class_name.clone(), vec![file_name]);
+  css_files.insert(class_name.clone(), vec![file_name.clone()]);
 
   match std::io::Write::write_all(&mut file, result.as_bytes()) {
     Err(err) => {
@@ -71,7 +71,7 @@ pub fn rustyle(input: TokenStream) -> TokenStream {
 
   *id += 1;
 
-  let expanded = quote! { #class_name };
+  let expanded = quote! { (#class_name, #file_name) };
 
   expanded.into()
 }

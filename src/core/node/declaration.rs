@@ -4,7 +4,8 @@ use proc_macro::Span;
 
 #[derive(Debug)]
 pub struct DeclarationNode {
-  pub range: (Span, Span),
+  pub range: Span,
+  pub prefix: String,
   pub name: String,
   pub value: Box<Cssifiable>,
 }
@@ -14,7 +15,7 @@ impl Node for DeclarationNode {
     "Declaration"
   }
 
-  fn range(&self) -> Option<(Span, Span)> {
+  fn span(&self) -> Option<Span> {
     Some(self.range)
   }
 

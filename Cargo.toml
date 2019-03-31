@@ -18,3 +18,4 @@ proc-macro = true
 lazy_static = "1.3.0"
 quote = "0.6.11"
 fasthash = "0.4.0"
+proc-macro2="0.4.27" 

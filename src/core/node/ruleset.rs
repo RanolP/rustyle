@@ -1,9 +1,10 @@
-use super::{DeclarationNode, Node};
+use super::{DeclarationNode, MetadataNode, Node};
 use proc_macro::Span;
 
 #[derive(Debug)]
 pub struct RulesetNode {
-  pub range: Option<(Span, Span)>,
+  pub range: Option<Span>,
+  pub metadatas: Vec<MetadataNode>,
   pub declarations: Vec<DeclarationNode>,
 }
 
@@ -12,7 +13,7 @@ impl Node for RulesetNode {
     "Ruleset"
   }
 
-  fn range(&self) -> Option<(Span, Span)> {
+  fn span(&self) -> Option<Span> {
     self.range
   }
 

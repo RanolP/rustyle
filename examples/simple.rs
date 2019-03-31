@@ -1,16 +1,19 @@
 #![feature(proc_macro_hygiene)]
-use rustyle::{css_use, rustyle};
+use rustyle::{css_files, css_use, rustyle};
 
 fn main() {
   #[css_use]
-  let red = "gray";
+  let red = "#c0ffee";
 
-  let test = rustyle! {
+  let (test, test_file) = rustyle! {
     background-color: #00cccc;
     #[allow(vendor_prefix)]
     -moz-user-select: none;
-    background-color: ${red};
+    // todo: css_use
+    // background-color: ${red};
   };
 
-  println!("{}", test);
+  println!("{} at {}", test, test_file);
+
+  println!("All files are listed here:\n{:?}", css_files!());
 }

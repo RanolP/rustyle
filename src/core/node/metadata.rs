@@ -9,7 +9,7 @@ pub enum MetadataType {
 
 #[derive(Debug)]
 pub struct MetadataNode {
-  pub range: (Span, Span),
+  pub range: Span,
   pub metadata_type: MetadataType,
   pub method_name: String,
   pub parameters: Vec<String>,
@@ -23,7 +23,7 @@ impl Node for MetadataNode {
     }
   }
 
-  fn range(&self) -> Option<(Span, Span)> {
+  fn span(&self) -> Option<Span> {
     Some(self.range)
   }
 }
