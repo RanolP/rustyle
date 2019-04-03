@@ -1,8 +1,11 @@
-//! This crate provides the [`rustyle!`] macro that allows using CSS-in-Rust for Rust frontend application.
-//! This crate uses some experimental features, so you should use nightly toolchain to use this crate.
-//! Note: This crate absolutely unstable, I recommend you to don't use this crate on a production project.
-//!
-//! [`rustyle!`]: macro.rustyle.html
+/*!
+This crate provides the [`rustyle!`] macro that allows using CSS-in-Rust for Rust frontend application.
+This crate uses some experimental features, so you should use nightly toolchain to use this crate.
+
+Note: This crate absolutely unstable, I recommend you to don't use this crate on a production project.
+
+[`rustyle!`]: macro.rustyle.html
+*/
 
 #![feature(proc_macro_diagnostic)]
 #![feature(proc_macro_span)]
@@ -20,13 +23,16 @@ use proc_macro::{Span, TokenStream};
 /// Create a style class which contains the rusty css code.
 /// Returns the name of the class.
 ///
-/// ```
+/// ```no_run
+/// # #![feature(proc_macro_hygiene)]
+/// # use rustyle::css;
+///
 /// let GlobalFile = css! {
 ///   #![inject_global]
 ///   body {
 ///     padding: 0;
 ///   }
-/// }
+/// };
 ///
 /// let (Button, ButtonFile) = css! {
 ///   border: 1px solid black;
@@ -34,7 +40,7 @@ use proc_macro::{Span, TokenStream};
 ///   ::-webkit-scrollbar {
 ///     width: 10px;
 ///   }
-/// }
+/// };
 ///
 /// html! {
 ///   ...
@@ -42,7 +48,7 @@ use proc_macro::{Span, TokenStream};
 ///     ...
 ///   </button>
 ///   ...
-/// }
+/// };
 /// ```
 #[proc_macro]
 pub fn rustyle(input: TokenStream) -> TokenStream {
@@ -53,10 +59,13 @@ pub fn rustyle(input: TokenStream) -> TokenStream {
 ///
 /// [`rustyle!`]: macro.rustyle.html
 ///
-/// ```
+/// ```no_run
+/// # #![feature(proc_macro_hygiene)]
+/// # use rustyle::css;
+///
 /// let (Button, ButtonFile) = css! {
 ///   border: 1px solid black;
-/// }
+/// };
 ///
 /// html! {
 ///   ...
@@ -64,7 +73,7 @@ pub fn rustyle(input: TokenStream) -> TokenStream {
 ///     ...
 ///   </button>
 ///   ...
-/// }
+/// };
 /// ```
 #[proc_macro]
 pub fn css(input: TokenStream) -> TokenStream {
@@ -88,17 +97,20 @@ pub fn css_files(input: TokenStream) -> TokenStream {
 ///
 /// [`rustyle!`]: macro.rustyle.html
 ///
-/// ```
+/// ```no_run
+/// # #![feature(proc_macro_hygiene)]
+/// # use rustyle::{css, css_use};
+///
 /// #[css_use]
 /// let (Parent, ParentFile) = css! {
 ///   color: red;
-/// }
+/// };
 ///
 /// let (Child, ChildFile) = css! {
 ///   ${Parent} > & {
 ///     color: white;
 ///   }
-/// }
+/// };
 /// ```
 #[proc_macro_attribute]
 pub fn css_use(attr: TokenStream, item: TokenStream) -> TokenStream {

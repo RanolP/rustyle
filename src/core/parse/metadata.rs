@@ -84,6 +84,9 @@ where
         let mut parameters = Vec::<String>::new();
 
         let emit_buffer = |parameters: &mut Vec<String>, token_buffer: &mut Vec<TokenTree>| {
+          if token_buffer.is_empty() {
+            return;
+          }
           parameters.push(
             token_buffer
               .iter()

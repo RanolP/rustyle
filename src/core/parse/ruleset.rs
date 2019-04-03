@@ -32,15 +32,15 @@ where
 
       for metadata in rule_metadatas.iter_mut() {
         // todo: separate hard-coded metadata strategies
-        if metadata.method_name == "allow" {
+        if metadata.method_name == "no_warn" {
           match metadata.parameters.len() {
             0 => {
-              metadata.range.error("one parameter expected but no parameter received");
+              metadata.range.error("one parameter expected but no parameter received").emit();
               continue;
             },
             1 => {},
             _ => {
-              metadata.range.warning("2 or more parameters received");
+              metadata.range.warning("2 or more parameters received").emit();
             }
           }
 
@@ -49,7 +49,7 @@ where
               should_warn.vendor_prefix = false;
             }
             param @ _ => {
-              metadata.range.error(format!("Unexpected parameter {}", param));
+              metadata.range.error(format!("Unexpected parameter {}", param)).emit();
             }
           }
         }
@@ -70,7 +70,7 @@ where
         // todo: unwrap_or(parse_selector())
         
         let parsed = parse_metadata(sharp, tokens);
-
+        
         match parsed {
           Some(node @ MetadataNode {
             metadata_type: MetadataType::Ruleset,
@@ -85,7 +85,7 @@ where
             rule_metadatas.push(node);
           }
           _ => {
-            // do nothing
+            panic!("Never happen")
           }
         }
 

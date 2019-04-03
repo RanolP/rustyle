@@ -1,13 +1,14 @@
 use crate::core::csstype::Cssifiable;
-use crate::global::KEYWORDS;
+use crate::global::{KEYWORDS, PROPERTIES};
 use std::collections::HashSet;
 
-pub trait Property {
-  fn register();
-  fn name() -> &'static str;
-  fn verify(arg: &Cssifiable) -> bool;
+pub trait Property: Send + Sync {
+  fn register(&self);
 
-  fn register_keyword_prefixed(prefix: &'static str, keywords: Vec<&'static str>) {
+  fn name(&self) -> &'static str;
+  fn verify(&self, arg: &Cssifiable) -> bool;
+
+  fn register_keyword_prefixed(&self, prefix: &'static str, keywords: Vec<&'static str>) {
     let mut global_keywords = KEYWORDS.lock().unwrap();
 
     for keyword in keywords {
@@ -18,11 +19,22 @@ pub trait Property {
       global_keywords
         .get_mut(&keyword.to_string())
         .expect("Guaranteed by before insert")
-        .insert(format!("{}{}", prefix, Self::name()));
+        .insert(format!("{}{}", prefix, self.name()));
     }
   }
 
-  fn register_keyword(keywords: Vec<&'static str>) {
-    Self::register_keyword_prefixed("", keywords)
+  fn register_keyword(&self, keywords: Vec<&'static str>) {
+    self.register_keyword_prefixed("", keywords);
   }
+}
+
+pub fn register_property<P>(p: P)
+where
+  P: Property,
+  P: Sized,
+  P: 'static,
+{
+  let mut properties = PROPERTIES.lock().unwrap();
+
+  properties.insert(p.name().to_string(), Box::new(p));
 }

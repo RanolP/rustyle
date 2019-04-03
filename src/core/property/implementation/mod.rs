@@ -7,6 +7,6 @@ pub use user_select::*;
 use crate::core::property::Property;
 
 pub fn register_all() {
-  BackgroundColor::register();
-  UserSelect::register();
+  BackgroundColor.register();
+  UserSelect.register();
 }

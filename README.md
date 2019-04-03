@@ -53,6 +53,8 @@ rustyle embedded those ruleset attributes:
 - `#![inject_global]` (todo)
 - `#![no_optimize]` (todo)
 - `#![no_collapse]` (todo)
+- `#![include(NAME)]` (todo)
+- `#![filename(filename)]` (todo)
 
 ### Rule Metadata
 
@@ -77,7 +79,7 @@ let Ruleset = rustyle! {
 
 rustyle embedded those ruleset attributes:
 
-- `#[allow(vendor_prefix)]` (todo)
+- `#[no_warn(vendor_prefix)]`
 - `#[no_optimize]` (todo)
 
 ### Function

@@ -1,3 +1,4 @@
+use crate::core::property::Property;
 use lazy_static::lazy_static;
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
@@ -10,6 +11,7 @@ lazy_static! {
     Arc::new(Mutex::new(HashMap::new()));
   pub static ref IS_PROPERTY_REGISTERED: Arc<Mutex<bool>> =
     Arc::new(Mutex::new(false));
+  pub static ref PROPERTIES: Arc<Mutex<HashMap<String, Box<Property>>>> = Arc::new(Mutex::new(HashMap::new()));
 
   pub static ref OUTPUT: String =
     std::env::var("RUSTYLE_OUTPUT").unwrap_or(String::from("./rustyle"));

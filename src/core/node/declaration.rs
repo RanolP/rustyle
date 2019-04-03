@@ -22,7 +22,8 @@ impl Node for DeclarationNode {
   fn generate_code(&self, _: &str) -> String {
     let value = &*self.value;
     return format!(
-      "{key}: {value};",
+      "{prefix}{key}: {value};",
+      prefix = self.prefix,
       key = self.name,
       value = value.optimized_cssify()
     );

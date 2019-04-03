@@ -7,8 +7,8 @@ fn main() {
 
   let (test, test_file) = rustyle! {
     background-color: #00cccc;
-    #[allow(vendor_prefix)]
-    -moz-user-select: none;
+    #[no_warn(vendor_prefix)]
+    -moz-user-select: #00cccc;
     // todo: css_use
     // background-color: ${red};
   };

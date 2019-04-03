@@ -1,22 +1,24 @@
 use crate::core::csstype::{CssKeyword, CssKeywordType, Cssifiable};
-use crate::core::property::Property;
+use crate::core::property::{register_property, Property};
 
 pub struct UserSelect;
 
 impl Property for UserSelect {
-  fn register() {
-    Self::register_keyword(vec!["none", "auto", "text", "contain", "all"]);
+  fn register(&self) {
+    self.register_keyword(vec!["none", "auto", "text", "contain", "all"]);
 
-    Self::register_keyword_prefixed("-moz-", vec!["none", "text", "all"]);
+    self.register_keyword_prefixed("-moz-", vec!["none", "text", "all"]);
     // "all" Doesn't work in Safari; use only "none" or "text", or else it will allow typing in the <html> container
-    Self::register_keyword_prefixed("-webkit-", vec!["none", "text", "all"]);
-    Self::register_keyword_prefixed("-ms-", vec!["none", "text", "element"]);
+    self.register_keyword_prefixed("-webkit-", vec!["none", "text", "all"]);
+    self.register_keyword_prefixed("-ms-", vec!["none", "text", "element"]);
+
+    register_property(UserSelect);
   }
-  fn name() -> &'static str {
+  fn name(&self) -> &'static str {
     "user-select"
   }
 
-  fn verify(arg: &Cssifiable) -> bool {
+  fn verify(&self, arg: &Cssifiable) -> bool {
     let arg = arg.as_any();
     if let Some(arg) = arg.downcast_ref::<CssKeyword>() {
       match arg {
