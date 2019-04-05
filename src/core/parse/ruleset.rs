@@ -1,16 +1,17 @@
 use crate::core::node::{DeclarationNode, MetadataNode, MetadataType, RulesetNode};
 use crate::core::parse::{parse_declaration, parse_metadata};
-use proc_macro::{Delimiter, TokenTree};
+use crate::core::metadata::RuleMetadataProcessor;
+use crate::global::RULE_METADATA_PROCESSORS;
+use proc_macro::{Delimiter, TokenTree, Span};
 use std::iter::Peekable;
-
-struct DeclarationShouldWarn {
-  vendor_prefix: bool
-}
+use std::collections::HashMap;
 
 pub fn parse_ruleset<I: 'static>(tokens: &mut Peekable<I>) -> Option<Box<RulesetNode>>
 where
   I: Iterator<Item = TokenTree>,
 {
+  let rule_metadata_processors = RULE_METADATA_PROCESSORS.lock().unwrap();
+
   let mut declarations = Vec::<DeclarationNode>::new();
   let mut ruleset_metadatas = Vec::<MetadataNode>::new();
   let mut rule_metadatas = Vec::<MetadataNode>::new();
@@ -18,7 +19,7 @@ where
   let mut last = None;
 
   let mut parse_declaration = |rule_metadatas: &mut Vec<MetadataNode>, tokens: &mut Peekable<I>| {
-    let parsed = parse_declaration(tokens);
+    let parsed = parse_declaration(rule_metadatas.to_vec(), tokens);
 
     if let Some(node) = parsed {
       if first.is_none() {
@@ -26,37 +27,23 @@ where
       }
       last = Some(node.range);
 
-      let mut should_warn = DeclarationShouldWarn {
-        vendor_prefix: true,
-      };
+      let mut processors = HashMap::<String, (&Box<RuleMetadataProcessor>, Vec<MetadataNode>)>::new();
 
-      for metadata in rule_metadatas.iter_mut() {
-        // todo: separate hard-coded metadata strategies
-        if metadata.method_name == "no_warn" {
-          match metadata.parameters.len() {
-            0 => {
-              metadata.range.error("one parameter expected but no parameter received").emit();
-              continue;
-            },
-            1 => {},
-            _ => {
-              metadata.range.warning("2 or more parameters received").emit();
-            }
-          }
-
-          match metadata.parameters[0].as_str() {
-            "vendor_prefix" => {
-              should_warn.vendor_prefix = false;
-            }
-            param @ _ => {
-              metadata.range.error(format!("Unexpected parameter {}", param)).emit();
-            }
-          }
-        }
+      for processor in rule_metadata_processors.values() {
+        processors.insert(processor.name().to_string(), (processor, Vec::new()));
       }
 
-      if node.prefix.len() > 0 && should_warn.vendor_prefix {
-        node.range.warning("Consider removing the vendor prefix").emit();
+      for metadata in node.metadatas.clone() {
+        if !processors.contains_key(&metadata.method_name) {
+            metadata.range.error("Unknown metadata").emit();
+            continue;
+        }
+        
+        processors.get_mut(&metadata.method_name.clone()).expect("Guaranteed by before if").1.push(metadata);
+      }
+
+      for (processor, metadatas) in processors.values() {
+        (*processor).process(&node, metadatas.to_vec());
       }
 
       declarations.push(node);

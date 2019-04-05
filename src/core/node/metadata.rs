@@ -1,13 +1,13 @@
 use super::Node;
 use proc_macro::Span;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MetadataType {
   Ruleset,
   Rule,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MetadataNode {
   pub range: Span,
   pub metadata_type: MetadataType,

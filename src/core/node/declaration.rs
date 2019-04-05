@@ -1,5 +1,6 @@
 use super::Node;
 use crate::core::csstype::Cssifiable;
+use crate::core::node::MetadataNode;
 use proc_macro::Span;
 
 #[derive(Debug)]
@@ -8,6 +9,7 @@ pub struct DeclarationNode {
   pub prefix: String,
   pub name: String,
   pub value: Box<Cssifiable>,
+  pub metadatas: Vec<MetadataNode>,
 }
 
 impl Node for DeclarationNode {

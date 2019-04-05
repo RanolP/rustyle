@@ -1,3 +1,4 @@
+use crate::core::metadata::{RuleMetadataProcessor, RulesetMetadataProcessor};
 use crate::core::property::Property;
 use lazy_static::lazy_static;
 use std::collections::{HashMap, HashSet};
@@ -9,9 +10,11 @@ lazy_static! {
     Arc::new(Mutex::new(HashMap::new()));
   pub static ref KEYWORDS: Arc<Mutex<HashMap<String, HashSet<String>>>> =
     Arc::new(Mutex::new(HashMap::new()));
-  pub static ref IS_PROPERTY_REGISTERED: Arc<Mutex<bool>> =
+  pub static ref IS_STDLIB_INITIALIZED: Arc<Mutex<bool>> =
     Arc::new(Mutex::new(false));
   pub static ref PROPERTIES: Arc<Mutex<HashMap<String, Box<Property>>>> = Arc::new(Mutex::new(HashMap::new()));
+  pub static ref RULE_METADATA_PROCESSORS: Arc<Mutex<HashMap<String, Box<RuleMetadataProcessor>>>> = Arc::new(Mutex::new(HashMap::new()));
+  pub static ref RULESET_METADATA_PROCESSORS: Arc<Mutex<HashMap<String, Box<RulesetMetadataProcessor>>>> = Arc::new(Mutex::new(HashMap::new()));
 
   pub static ref OUTPUT: String =
     std::env::var("RUSTYLE_OUTPUT").unwrap_or(String::from("./rustyle"));

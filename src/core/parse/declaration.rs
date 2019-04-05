@@ -1,10 +1,13 @@
-use crate::core::node::DeclarationNode;
+use crate::core::node::{DeclarationNode, MetadataNode};
 use crate::core::parse::parse_expression;
 use crate::global::VENDOR_PREFIXES;
 use proc_macro::{Span, TokenTree};
 use std::iter::Peekable;
 
-pub fn parse_declaration<I: 'static>(tokens: &mut Peekable<I>) -> Option<DeclarationNode>
+pub fn parse_declaration<I: 'static>(
+  metadatas: Vec<MetadataNode>,
+  tokens: &mut Peekable<I>,
+) -> Option<DeclarationNode>
 where
   I: Iterator<Item = TokenTree>,
 {
@@ -110,6 +113,7 @@ where
             prefix: prefix.to_string(),
             name: name,
             value: expr,
+            metadatas: metadatas,
           };
           return Some(result);
         } else {
