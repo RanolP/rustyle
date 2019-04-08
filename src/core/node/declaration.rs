@@ -3,7 +3,7 @@ use crate::core::compile_context::CompileContext;
 use crate::core::csstype::Cssifiable;
 use crate::core::metadata::RuleMetadataProcessor;
 use crate::core::node::MetadataNode;
-use crate::global::RULE_METADATA_PROCESSORS;
+use crate::global::{RULE_METADATA_PROCESSORS, PROPERTIES};
 use proc_macro::Span;
 use std::collections::HashMap;
 
@@ -49,6 +49,19 @@ impl Node for DeclarationNode {
 
     for (processor, metadatas) in processors.values() {
       (*processor).process(&self, metadatas.to_vec());
+    }
+
+    let properties = PROPERTIES.lock().unwrap();
+
+    match properties.get(&self.name) {
+      Some(property) => {
+        if !property.verify(&self.value) {
+          self.range.error(format!("Unacceptable data {} on {}{}", self.value.origin(), self.prefix, self.name)).emit();
+        }
+      }
+      None => {
+        self.range.warning(format!("Unknown property {}", self.name)).emit();
+      }
     }
 
     let value = &*self.value;

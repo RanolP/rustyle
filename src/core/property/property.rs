@@ -6,7 +6,7 @@ pub trait Property: Send + Sync {
   fn register(&self);
 
   fn name(&self) -> &str;
-  fn verify(&self, arg: &Cssifiable) -> bool;
+  fn verify(&self, arg: &Box<dyn Cssifiable>) -> bool;
 
   fn register_keyword_prefixed(&self, prefix: &str, keywords: Vec<&str>) {
     let mut global_keywords = KEYWORDS.lock().unwrap();

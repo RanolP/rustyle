@@ -18,7 +18,7 @@ impl Property for UserSelect {
     "user-select"
   }
 
-  fn verify(&self, arg: &Cssifiable) -> bool {
+  fn verify(&self, arg: &Box<dyn Cssifiable>) -> bool {
     let arg = arg.as_any();
     if let Some(arg) = arg.downcast_ref::<CssKeyword>() {
       match arg {
