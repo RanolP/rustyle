@@ -1,17 +1,18 @@
-use crate::core::node::{DeclarationNode, MetadataNode, RulesetNode};
-use crate::global::{RULESET_METADATA_PROCESSORS, RULE_METADATA_PROCESSORS};
+use crate::core::compile_context::CompileContext;
+use crate::core::node::{DeclarationNode, MetadataNode};
+use crate::global::{ROOT_METADATA_PROCESSORS, RULE_METADATA_PROCESSORS};
 use std::fmt::Debug;
 
 pub trait RuleMetadataProcessor: Sync + Send + Debug {
-  fn name(&self) -> &'static str;
+  fn name(&self) -> &str;
 
   fn process(&self, node: &DeclarationNode, metadatas: Vec<MetadataNode>);
 }
 
-pub trait RulesetMetadataProcessor: Sync + Send + Debug {
-  fn name(&self) -> &'static str;
+pub trait RootMetadataProcessor: Sync + Send + Debug {
+  fn name(&self) -> &str;
 
-  fn process(&self, node: &RulesetNode, metadatas: Vec<MetadataNode>);
+  fn process(&self, context: &mut CompileContext, metadatas: Vec<MetadataNode>);
 }
 
 pub fn register_rule_metadata<M>(metadata_processor: M)
@@ -26,13 +27,13 @@ where
   );
 }
 
-pub fn register_ruleset_metadata<M>(metadata_processor: M)
+pub fn register_root_metadata<M>(metadata_processor: M)
 where
-  M: RulesetMetadataProcessor,
+  M: RootMetadataProcessor,
   M: Sized,
   M: 'static,
 {
-  RULESET_METADATA_PROCESSORS.lock().unwrap().insert(
+  ROOT_METADATA_PROCESSORS.lock().unwrap().insert(
     metadata_processor.name().to_string(),
     Box::new(metadata_processor),
   );

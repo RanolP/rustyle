@@ -1,4 +1,4 @@
-use crate::core::metadata::RuleMetadataProcessor;
+use crate::core::metadata::{util, RuleMetadataProcessor};
 use crate::core::node::{DeclarationNode, MetadataNode};
 
 #[derive(Debug)]
@@ -9,7 +9,7 @@ struct ShouldWarn {
 }
 
 impl RuleMetadataProcessor for NoWarn {
-  fn name(&self) -> &'static str {
+  fn name(&self) -> &str {
     "no_warn"
   }
   fn process(&self, node: &DeclarationNode, metadatas: Vec<MetadataNode>) {
@@ -18,21 +18,9 @@ impl RuleMetadataProcessor for NoWarn {
     };
 
     for metadata in metadatas {
-      match metadata.parameters.len() {
-        0 => {
-          metadata
-            .range
-            .error("one parameter expected but no parameter received")
-            .emit();
-          continue;
-        }
-        1 => {}
-        _ => {
-          metadata
-            .range
-            .warning("2 or more parameters received")
-            .emit();
-        }
+      match util::check_param_exact(1, &metadata, false) {
+        util::ParameterType::Less => continue,
+        _ => {}
       }
 
       match metadata.parameters[0].as_str() {
@@ -40,10 +28,7 @@ impl RuleMetadataProcessor for NoWarn {
           if warn.vendor_prefix {
             warn.vendor_prefix = false;
           } else {
-            metadata
-              .range
-              .warning("Consider removing duplicated no_warn metadata")
-              .emit();
+            util::no_duplicate(&metadata);
           }
         }
         param @ _ => {

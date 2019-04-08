@@ -3,7 +3,7 @@ use proc_macro::Span;
 
 #[derive(Debug, Clone)]
 pub enum MetadataType {
-  Ruleset,
+  Root,
   Rule,
 }
 
@@ -16,9 +16,9 @@ pub struct MetadataNode {
 }
 
 impl Node for MetadataNode {
-  fn name(&self) -> &'static str {
+  fn name(&self) -> &str {
     match self.metadata_type {
-      MetadataType::Ruleset => "RulesetMetadata",
+      MetadataType::Root => "RootMetadata",
       MetadataType::Rule => "RuleMetadata",
     }
   }

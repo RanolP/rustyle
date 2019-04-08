@@ -8,7 +8,7 @@ impl Property for BackgroundColor {
     self.register_keyword(vec!["transparent", "currentcolor"]);
     register_property(BackgroundColor);
   }
-  fn name(&self) -> &'static str {
+  fn name(&self) -> &str {
     "background-color"
   }
 

@@ -5,10 +5,10 @@ use std::collections::HashSet;
 pub trait Property: Send + Sync {
   fn register(&self);
 
-  fn name(&self) -> &'static str;
+  fn name(&self) -> &str;
   fn verify(&self, arg: &Cssifiable) -> bool;
 
-  fn register_keyword_prefixed(&self, prefix: &'static str, keywords: Vec<&'static str>) {
+  fn register_keyword_prefixed(&self, prefix: &str, keywords: Vec<&str>) {
     let mut global_keywords = KEYWORDS.lock().unwrap();
 
     for keyword in keywords {
@@ -23,7 +23,7 @@ pub trait Property: Send + Sync {
     }
   }
 
-  fn register_keyword(&self, keywords: Vec<&'static str>) {
+  fn register_keyword(&self, keywords: Vec<&str>) {
     self.register_keyword_prefixed("", keywords);
   }
 }

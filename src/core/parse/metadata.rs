@@ -20,7 +20,7 @@ pub fn parse_ruleset_metadata<I: 'static>(
 where
   I: Iterator<Item = TokenTree>,
 {
-  parse_metadata_common(sharp, exclamation, tokens, MetadataType::Ruleset)
+  parse_metadata_common(sharp, exclamation, tokens, MetadataType::Root)
 }
 
 fn parse_metadata_common<I: 'static>(
@@ -101,12 +101,8 @@ where
             TokenTree::Punct(ref punct) if punct.as_char() == ',' => {
               emit_buffer(&mut parameters, &mut token_buffer);
             }
-            TokenTree::Ident(_) => {
-              token_buffer.push(token);
-            }
             _ => {
-              token.span().error("Invalid token accepted").emit();
-              return None;
+              token_buffer.push(token);
             }
           }
         }

@@ -1,11 +1,11 @@
 # rustyle
 
 ![rust-nightly](https://img.shields.io/badge/rust-nightly-important.svg)
-[![Travis (.com)](https://img.shields.io/travis/com/RanolP/rustyle.svg)](https://travis-ci.com/RanolP/rustyle)
+[![Travis](https://img.shields.io/travis/com/RanolP/rustyle.svg)](https://travis-ci.com/RanolP/rustyle)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/RanolP/rustyle.svg)
-![Crates.io](https://img.shields.io/crates/v/rustyle.svg)
-![Crates.io](https://img.shields.io/crates/d/rustyle.svg)
-![Crates.io](https://img.shields.io/crates/l/rustyle.svg)
+![crates.io version](https://img.shields.io/crates/v/rustyle.svg)
+![crates.io downloads](https://img.shields.io/crates/d/rustyle.svg)
+![crates.io license](https://img.shields.io/crates/l/rustyle.svg)
 
 A new way to represent the CSS stylesheet in Rust
 
@@ -33,16 +33,16 @@ let CLASS = css! {
 
 ## Special features which not exists on CSS
 
-### Ruleset Metadata
+### Root Metadata
 
-Ruleset Metadata syntax is inspired by the metadata syntax in Rust.
-It appends the metadata of ruleset which controls the behavior of code generator.
+Root Metadata syntax is inspired by the metadata syntax in Rust.
+It appends the metadata of root ruleset which controls the behavior of code generator.
 For the cleaner code, We decided it should not appear after other rule appeared.
 
 Syntax:
 
 ```rust
-let Ruleset = rustyle! {
+let (Ruleset, RulesetFile) = rustyle! {
   #![ruleset_metadata]
   #![ruleset_metadata(with_param)]
 }
@@ -54,7 +54,7 @@ rustyle embedded those ruleset attributes:
 - `#![no_optimize]` (todo)
 - `#![no_collapse]` (todo)
 - `#![include(NAME)]` (todo)
-- `#![filename(filename)]` (todo)
+- `#![filename(filename)]`
 
 ### Rule Metadata
 
@@ -65,7 +65,7 @@ Affect on the rule on the next line.
 Syntax:
 
 ```rust
-let Ruleset = rustyle! {
+let (Ruleset, RulesetFile) = rustyle! {
   #[rule_metadata]
   the: rule;
 
@@ -91,7 +91,7 @@ You can declare custom function if we can :p.
 Syntax:
 
 ```rust
-let Ruleset = rustyle! {
+let (Ruleset, RulesetFile) = rustyle! {
   expression_position: function!();
 
   statement_position!();

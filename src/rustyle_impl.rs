@@ -1,16 +1,18 @@
+use crate::core::compile_context::CompileContext;
 use crate::core::name_mangler::mangle;
+use crate::core::node::Node;
 use crate::core::parse::parse_rustyle;
 use crate::global::{CSS_FILES_MAP, CSS_ID, OUTPUT};
 use proc_macro::{Span, TokenStream};
 use quote::quote;
 use std::error::Error;
+use std::fs::OpenOptions;
+use std::io::Write;
 
 pub fn rustyle(input: TokenStream) -> TokenStream {
   let mut css_files = CSS_FILES_MAP.lock().unwrap();
 
   let mut id = CSS_ID.lock().unwrap();
-
-  let mut result = String::new();
 
   let class_name = mangle(
     &input
@@ -20,13 +22,19 @@ pub fn rustyle(input: TokenStream) -> TokenStream {
       .collect::<String>(),
   );
 
-  for node in parse_rustyle(input) {
-    result.push_str(&node.generate_code(&class_name));
-  }
+  let mut context = CompileContext {
+    filename: format!("rustyle.{}.css", *id),
+  };
 
-  let file_name = format!("rustyle.{}.css", *id);
+  let node = match parse_rustyle(input) {
+    None => return (quote! {}).into(),
+    Some(node) => node,
+  };
 
-  let string_path = format!("{}/{}", OUTPUT.as_str(), file_name);
+  let mut result = node.generate_code(&class_name, &mut context);
+  result.push('\n');
+
+  let string_path = format!("{}/{}", OUTPUT.as_str(), context.filename);
   let path = std::path::Path::new(&string_path);
 
   if *id == 0 && std::fs::metadata(path.parent().unwrap()).is_ok() {
@@ -44,7 +52,12 @@ pub fn rustyle(input: TokenStream) -> TokenStream {
     return (quote! {}).into();
   }
 
-  let mut file = match std::fs::File::create(path) {
+  let mut file = match OpenOptions::new()
+    .create(true)
+    .write(true)
+    .append(true)
+    .open(path)
+  {
     Err(err) => {
       Span::call_site()
         .error(format!("couldn't create the file: {}", err))
@@ -54,9 +67,9 @@ pub fn rustyle(input: TokenStream) -> TokenStream {
     Ok(file) => file,
   };
 
-  css_files.insert(class_name.clone(), vec![file_name.clone()]);
+  css_files.insert(class_name.clone(), vec![context.filename.clone()]);
 
-  match std::io::Write::write_all(&mut file, result.as_bytes()) {
+  match file.write_all(result.as_bytes()) {
     Err(err) => {
       Span::call_site()
         .error(format!(
@@ -71,7 +84,9 @@ pub fn rustyle(input: TokenStream) -> TokenStream {
 
   *id += 1;
 
-  let expanded = quote! { (#class_name, #file_name) };
+  let filename = context.filename;
+
+  let expanded = quote! { (#class_name, #filename) };
 
   expanded.into()
 }

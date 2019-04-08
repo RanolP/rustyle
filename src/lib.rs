@@ -9,6 +9,7 @@ Note: This crate absolutely unstable, I recommend you to don't use this crate on
 
 #![feature(proc_macro_diagnostic)]
 #![feature(proc_macro_span)]
+
 extern crate fasthash;
 extern crate proc_macro;
 
@@ -80,7 +81,7 @@ pub fn css(input: TokenStream) -> TokenStream {
   rustyle_impl::rustyle(input)
 }
 
-/// Returns the created css files by rustyle as `Vec<&'static str>`.
+/// Returns the created css files by rustyle as `Vec<&str>`.
 /// It is useful when you don't want to separate css file by route,
 /// just want to see whether the styles are approved.
 #[proc_macro]

@@ -14,7 +14,7 @@ impl Property for UserSelect {
 
     register_property(UserSelect);
   }
-  fn name(&self) -> &'static str {
+  fn name(&self) -> &str {
     "user-select"
   }
 
