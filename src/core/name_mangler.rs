@@ -39,6 +39,8 @@ pub fn mangle(source: &str) -> String {
     }
 
     unique_identifier += 1;
+
+    name.clear();
   }
 
   names.push(name.clone());
