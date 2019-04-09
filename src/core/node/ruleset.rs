@@ -50,14 +50,41 @@ impl Node for RulesetNode {
         (*processor).process(context, metadatas.to_vec());
       }
     }
+
     let mut result = String::new();
     result.push_str(".");
     result.push_str(base_class);
     result.push_str(" {\n");
 
+    let mut appeared_nodes = HashMap::<String, (&DeclarationNode, bool)>::new();
+
+    let alert_duplicated = |node: &DeclarationNode| {
+      node
+        .range
+        .warning(format!(
+          "Consider removing duplicated property {}",
+          node.name
+        ))
+        .emit();
+    };
+
     for declaration in &self.declarations {
+      let is_duplicated = if let Some(before) = appeared_nodes.get(&declaration.name) {
+        alert_duplicated(before.0);
+        true
+      } else {
+        false
+      };
+
+      appeared_nodes.insert(declaration.name.clone(), (declaration, is_duplicated));
+    }
+
+    for (node, is_duplicated) in appeared_nodes.values() {
+      if *is_duplicated {
+        alert_duplicated(node);
+      }
       result.push_str("  ");
-      result.push_str(&declaration.generate_code(base_class, context));
+      result.push_str(&node.generate_code(base_class, context));
       result.push_str("\n");
     }
 

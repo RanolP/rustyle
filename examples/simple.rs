@@ -6,9 +6,11 @@ fn main() {
   let red = "#c0ffee";
 
   let (test, test_file) = rustyle! {
-    background-color: #00cccc;
+    background-color: #00aabb;
     #[no_warn(vendor_prefix)]
-    -moz-user-select: #00cccc;
+    -moz-user-select: none;
+    background-color: #00bbcc;
+    background-color: #00eeff;
     // todo: css_use
     // background-color: ${red};
   };
