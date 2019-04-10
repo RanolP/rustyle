@@ -113,3 +113,7 @@ rustyle embedded those functions:
 ## How's it works
 
 It's written in proc macro. The css codes checked and wrote at compile time. macro calls replaced to randomly generated class names.
+
+## Links
+
+- [Known Issues](https://github.com/RanolP/rustyle/blob/master/KNOWN_ISSUES.md)
