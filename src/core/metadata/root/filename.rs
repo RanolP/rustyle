@@ -7,21 +7,21 @@ use crate::core::node::MetadataNode;
 pub struct Filename;
 
 impl RootMetadataProcessor for Filename {
-  fn name(&self) -> &str {
-    "filename"
-  }
-  fn process(&self, context: &mut CompileContext, metadatas: Vec<MetadataNode>) {
-    if metadatas.is_empty() {
-      return;
+    fn name(&self) -> &str {
+        "filename"
     }
-    for metadata in (&metadatas).into_iter().take(metadatas.len() - 1) {
-      util::no_duplicate(&metadata);
+    fn process(&self, context: &mut CompileContext, metadatas: Vec<MetadataNode>) {
+        if metadatas.is_empty() {
+            return;
+        }
+        for metadata in (&metadatas).into_iter().take(metadatas.len() - 1) {
+            util::no_duplicate(&metadata);
+        }
+        let last = metadatas.last().expect("Guaranteed by caller");
+        let param = match util::check_param_exact(1, &last, false) {
+            util::ParameterType::Less => return,
+            util::ParameterType::Matched | util::ParameterType::Over => &last.parameters[0],
+        };
+        context.filename = param.clone();
     }
-    let last = metadatas.last().expect("Guaranteed by caller");
-    let param = match util::check_param_exact(1, &last, false) {
-      util::ParameterType::Less => return,
-      util::ParameterType::Matched | util::ParameterType::Over => &last.parameters[0],
-    };
-    context.filename = param.clone();
-  }
 }

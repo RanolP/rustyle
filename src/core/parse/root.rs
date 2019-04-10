@@ -6,15 +6,15 @@ use crate::global::IS_STDLIB_INITIALIZED;
 use proc_macro::TokenStream;
 
 pub fn parse_rustyle(stream: TokenStream) -> Option<RulesetNode> {
-  let mut is_stdlib_initialized = IS_STDLIB_INITIALIZED.lock().unwrap();
+    let mut is_stdlib_initialized = IS_STDLIB_INITIALIZED.lock().unwrap();
 
-  if !*is_stdlib_initialized {
-    register_all_properties();
-    register_all_metadatas();
-    *is_stdlib_initialized = true;
-  }
+    if !*is_stdlib_initialized {
+        register_all_properties();
+        register_all_metadatas();
+        *is_stdlib_initialized = true;
+    }
 
-  let stream = &mut stream.into_iter().peekable();
+    let stream = &mut stream.into_iter().peekable();
 
-  parse_ruleset(stream, true)
+    parse_ruleset(stream, true)
 }

@@ -5,35 +5,37 @@ use std::iter::Peekable;
 
 pub fn parse_ruleset<I: 'static>(tokens: &mut Peekable<I>, is_root: bool) -> Option<RulesetNode>
 where
-  I: Iterator<Item = TokenTree>,
+    I: Iterator<Item = TokenTree>,
 {
-  let mut declarations = Vec::<DeclarationNode>::new();
-  let mut root_metadatas = Vec::<MetadataNode>::new();
-  let mut rule_metadatas = Vec::<MetadataNode>::new();
-  let mut first = None;
-  let mut last = None;
+    let mut declarations = Vec::<DeclarationNode>::new();
+    let mut root_metadatas = Vec::<MetadataNode>::new();
+    let mut rule_metadatas = Vec::<MetadataNode>::new();
+    let mut first = None;
+    let mut last = None;
 
-  let mut parse_declaration = |rule_metadatas: &mut Vec<MetadataNode>, declarations: &mut Vec<DeclarationNode>, tokens: &mut Peekable<I>| {
-    let parsed = parse_declaration(rule_metadatas.to_vec(), tokens);
+    let mut parse_declaration = |rule_metadatas: &mut Vec<MetadataNode>,
+                                 declarations: &mut Vec<DeclarationNode>,
+                                 tokens: &mut Peekable<I>| {
+        let parsed = parse_declaration(rule_metadatas.to_vec(), tokens);
 
-    if let Some(node) = parsed {
-      if first.is_none() {
-        first = Some(node.range);
-      }
-      last = Some(node.range);
+        if let Some(node) = parsed {
+            if first.is_none() {
+                first = Some(node.range);
+            }
+            last = Some(node.range);
 
-      declarations.push(node);
-    }
-  };
+            declarations.push(node);
+        }
+    };
 
-  loop {
-    match tokens.peek().cloned() {
+    loop {
+        match tokens.peek().cloned() {
       Some(TokenTree::Punct(ref token)) if token.as_char() == '#' => {
         let sharp = tokens.next().expect("Guaranteed by match");
         // todo: unwrap_or(parse_selector())
-        
+
         let parsed = parse_metadata(sharp, tokens);
-        
+
         match parsed {
           Some(node @ MetadataNode {
             metadata_type: MetadataType::Root,
@@ -101,20 +103,20 @@ where
         return None;
       }
     }
-  }
+    }
 
-  if declarations.is_empty() {
-    None
-  } else {
-    Some(RulesetNode {
-      range: if let Some(first) = first {
-        Some(first.join(last.unwrap_or(first)).expect("In the same file"))
-      } else {
+    if declarations.is_empty() {
         None
-      },
-      declarations: declarations,
-      metadatas: root_metadatas,
-      is_root: is_root
-    })
-  }
+    } else {
+        Some(RulesetNode {
+            range: if let Some(first) = first {
+                Some(first.join(last.unwrap_or(first)).expect("In the same file"))
+            } else {
+                None
+            },
+            declarations: declarations,
+            metadatas: root_metadatas,
+            is_root: is_root,
+        })
+    }
 }

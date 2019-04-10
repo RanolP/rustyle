@@ -10,7 +10,7 @@ fn main() {
     #[no_warn(vendor_prefix)]
     -moz-user-select: none;
     background-color: #00bbcc;
-    background-color: #00eeff;
+    background-color: #"00eeff";
     // todo: css_use
     // background-color: ${red};
   };

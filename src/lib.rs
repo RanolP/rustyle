@@ -54,7 +54,7 @@ use proc_macro::{Span, TokenStream};
 /// ```
 #[proc_macro]
 pub fn rustyle(input: TokenStream) -> TokenStream {
-  rustyle_impl::rustyle(input)
+    rustyle_impl::rustyle(input)
 }
 
 /// Alias of [`rustyle!`] macro.
@@ -79,7 +79,7 @@ pub fn rustyle(input: TokenStream) -> TokenStream {
 /// ```
 #[proc_macro]
 pub fn css(input: TokenStream) -> TokenStream {
-  rustyle_impl::rustyle(input)
+    rustyle_impl::rustyle(input)
 }
 
 /// Returns the created css files by rustyle as `Vec<&str>`.
@@ -87,11 +87,11 @@ pub fn css(input: TokenStream) -> TokenStream {
 /// just want to see whether the styles are approved.
 #[proc_macro]
 pub fn css_files(input: TokenStream) -> TokenStream {
-  if !input.is_empty() {
-    Span::call_site().warning("Input will be ignored").emit();
-  }
+    if !input.is_empty() {
+        Span::call_site().warning("Input will be ignored").emit();
+    }
 
-  css_files_impl::css_files()
+    css_files_impl::css_files()
 }
 
 /// Allows using an outer variable on [`rustyle!`] macro.
@@ -116,11 +116,11 @@ pub fn css_files(input: TokenStream) -> TokenStream {
 /// ```
 #[proc_macro_attribute]
 pub fn css_use(attr: TokenStream, item: TokenStream) -> TokenStream {
-  if !attr.is_empty() {
-    Span::call_site()
-      .warning("Parameters will be ignored")
-      .emit();
-  }
+    if !attr.is_empty() {
+        Span::call_site()
+            .warning("Parameters will be ignored")
+            .emit();
+    }
 
-  css_use_impl::css_use(item)
+    css_use_impl::css_use(item)
 }

@@ -1,36 +1,23 @@
-use crate::core::csstype::{CssKeyword, CssKeywordType, Cssifiable, HslColor, RgbColor};
+use super::util;
+use crate::core::csstype::Cssifiable;
 use crate::core::property::{register_property, Property};
 
 pub struct BackgroundColor;
 
 impl Property for BackgroundColor {
-  fn register(&self) {
-    self.register_keyword(vec!["transparent", "currentcolor"]);
-    register_property(BackgroundColor);
-  }
-  fn name(&self) -> &str {
-    "background-color"
-  }
-
-  fn verify(&self, arg: &Box<dyn Cssifiable>) -> bool {
-    let arg = arg.as_any();
-    if let Some(arg) = arg.downcast_ref::<CssKeyword>() {
-      match arg {
-        CssKeyword {
-          keyword_type: CssKeywordType::NotWide(s),
-          ..
-        } => match s.as_str() {
-          "transparent" | "currentcolor" => true,
-          _ => false,
-        },
-        _ => true,
-      }
-    } else if arg.is::<RgbColor>() {
-      true
-    } else if arg.is::<HslColor>() {
-      true
-    } else {
-      false
+    fn register(&self) {
+        self.register_keyword(vec!["transparent", "currentcolor"]);
+        register_property(BackgroundColor);
     }
-  }
+    fn name(&self) -> &str {
+        "background-color"
+    }
+
+    fn verify(&self, arg: &Box<dyn Cssifiable>) -> bool {
+        if let Some(arg) = util::as_keyword(arg) {
+            self.check_keyword(arg)
+        } else {
+            util::is_color(arg)
+        }
+    }
 }
