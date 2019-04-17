@@ -5,17 +5,26 @@ use crate::global::ROOT_METADATA_PROCESSORS;
 use proc_macro::Span;
 use std::collections::HashMap;
 
+#[derive(Debug, PartialEq)]
+pub enum RulesetType {
+    Selector(String),
+    Root,
+}
+
 #[derive(Debug)]
 pub struct RulesetNode {
     pub range: Option<Span>,
     pub metadatas: Vec<MetadataNode>,
     pub declarations: Vec<DeclarationNode>,
-    pub is_root: bool,
+    pub ruleset_type: RulesetType,
 }
 
 impl Node for RulesetNode {
     fn name(&self) -> &str {
-        "Ruleset"
+        match self.ruleset_type {
+            RulesetType::Selector(_) => "Ruleset (Nested)",
+            RulesetType::Root => "Ruleset",
+        }
     }
 
     fn span(&self) -> Option<Span> {
@@ -23,11 +32,11 @@ impl Node for RulesetNode {
     }
 
     fn generate_code(&self, base_class: &str, context: &mut CompileContext) -> String {
-        if self.is_root {
+        if self.ruleset_type == RulesetType::Root {
             let root_metadata_processors = ROOT_METADATA_PROCESSORS.lock().unwrap();
 
             let mut processors =
-                HashMap::<String, (&Box<RootMetadataProcessor>, Vec<MetadataNode>)>::new();
+                HashMap::<String, (&Box<dyn RootMetadataProcessor>, Vec<MetadataNode>)>::new();
 
             for processor in root_metadata_processors.values() {
                 processors.insert(processor.name().to_string(), (processor, Vec::new()));

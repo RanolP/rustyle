@@ -1,9 +1,9 @@
-use crate::core::node::{DeclarationNode, MetadataNode, MetadataType, RulesetNode};
-use crate::core::parse::{parse_declaration, parse_metadata};
+use crate::core::node::{DeclarationNode, MetadataNode, MetadataType, RulesetNode, RulesetType};
+use crate::core::parse::{parse_declaration, parse_metadata, parse_selector_group};
 use proc_macro::{Delimiter, TokenTree};
 use std::iter::Peekable;
 
-pub fn parse_ruleset<I: 'static>(tokens: &mut Peekable<I>, is_root: bool) -> Option<RulesetNode>
+pub fn parse_ruleset<I: 'static>(tokens: &mut Peekable<I>, selector: String) -> Option<RulesetNode>
 where
     I: Iterator<Item = TokenTree>,
 {
@@ -29,80 +29,83 @@ where
     };
 
     loop {
-        match tokens.peek().cloned() {
-      Some(TokenTree::Punct(ref token)) if token.as_char() == '#' => {
-        let sharp = tokens.next().expect("Guaranteed by match");
-        // todo: unwrap_or(parse_selector())
+        let token = tokens.peek().cloned();
+        match token {
+            Some(TokenTree::Punct(ref token)) if token.as_char() == '#' => {
+                let sharp = tokens.next().expect("Guaranteed by match");
 
-        let parsed = parse_metadata(sharp, tokens);
+                let parsed = parse_metadata(sharp, tokens);
 
-        match parsed {
-          Some(node @ MetadataNode {
-            metadata_type: MetadataType::Root,
-            ..
-          }) => {
-            if !rule_metadatas.is_empty() || !declarations.is_empty() {
-              node.range.warning("Put root metadata on the first of ruleset").emit();
+                match parsed {
+                    Some(node @ MetadataNode {
+                        metadata_type: MetadataType::Root,
+                        ..
+                    }) => {
+                        if !rule_metadatas.is_empty() || !declarations.is_empty() {
+                            node.range.warning("Put root metadata on the first of ruleset").emit();
+                        }
+                        if !selector.is_empty() {
+                            node.range.error("Put root metadata on the root of ruleset").emit();
+                            continue;
+                        }
+                        root_metadatas.push(node);
+                    },
+                    Some(node @ MetadataNode {
+                        metadata_type: MetadataType::Rule,
+                        ..
+                    }) => {
+                        rule_metadatas.push(node);
+                    }
+                    _ => {
+                        // todo: unwrap_or(parse_selector())
+                        panic!("Not Implemented")
+                    }
+                }
+                continue;
             }
-            if !is_root {
-              node.range.error("Put root metadata on the root of ruleset").emit();
-              continue;
+            Some(TokenTree::Punct(ref punct))
+            // class selector
+            if punct.as_char() == '.'
+            // itself selector
+            || punct.as_char() == '&'
+            // universal selector
+            || punct.as_char() == '*'
+            // state selector
+            || punct.as_char() == ':'
+            // adjacent sibling selector
+            || punct.as_char() == '+'
+            // general sibling selector
+            || punct.as_char() == '~'
+            // child selector
+            || punct.as_char() == '>' =>
+            {
+                let token = token.expect("Guaranteed by match");
+                let selectors = parse_selector_group(vec!(), tokens);
+                token.span().help(format!("Selectors are {:?}", selectors)).emit();
+                // todo: parse_selector()
+                break;
             }
-            root_metadatas.push(node);
-          },
-          Some(node @ MetadataNode {
-            metadata_type: MetadataType::Rule,
-            ..
-          }) => {
-            rule_metadatas.push(node);
-          }
-          _ => {
-            panic!("Never happen")
-          }
+            Some(TokenTree::Group(ref token)) if token.delimiter() == Delimiter::Bracket => {
+                // todo: parse_selector()
+                break;
+            }
+            Some(TokenTree::Ident(_))  => {
+                parse_declaration(&mut rule_metadatas, &mut declarations, tokens);
+            }
+            Some(TokenTree::Punct(ref token)) if token.as_char() == '-' => {
+                parse_declaration(&mut rule_metadatas,&mut declarations, tokens);
+            }
+            Some(TokenTree::Punct(ref token)) if token.as_char() == ';' => {
+                parse_declaration(&mut rule_metadatas, &mut declarations,tokens);
+            }
+            None => {
+                break;
+            }
+            Some(token) => {
+                token.span().error(format!("Unacceptable token {:?}", token.to_string())).emit();
+                return None;
+            }
         }
-
-        continue;
-      }
-      Some(TokenTree::Punct(ref token))
-        // class selector
-        if token.as_char() == '.'
-        // itself selector
-        || token.as_char() == '&'
-        // universal selector
-        || token.as_char() == '*'
-        // state selector
-        || token.as_char() == ':'
-        // adjacent sibling selector
-        || token.as_char() == '+'
-        // general sibling selector
-        || token.as_char() == '~'
-        // child selector
-        || token.as_char() == '>' =>
-      {
-        // todo: parse_selector()
-        break;
-      }
-      Some(TokenTree::Group(ref token)) if token.delimiter() == Delimiter::Bracket => {
-        // todo: parse_selector()
-        break;
-      }
-      Some(TokenTree::Ident(_))  => {
-        parse_declaration(&mut rule_metadatas, &mut declarations, tokens);
-      }
-      Some(TokenTree::Punct(ref token)) if token.as_char() == '-' => {
-        parse_declaration(&mut rule_metadatas,&mut declarations, tokens);
-      }
-      Some(TokenTree::Punct(ref token)) if token.as_char() == ';' => {
-        parse_declaration(&mut rule_metadatas, &mut declarations,tokens);
-      }
-      None => {
-        break;
-      }
-      Some(token) => {
-        token.span().error(format!("Unacceptable token {:?}", token.to_string())).emit();
-        return None;
-      }
-    }
     }
 
     if declarations.is_empty() {
@@ -116,7 +119,11 @@ where
             },
             declarations: declarations,
             metadatas: root_metadatas,
-            is_root: is_root,
+            ruleset_type: if selector.is_empty() {
+                RulesetType::Root
+            } else {
+                RulesetType::Selector(selector)
+            },
         })
     }
 }
