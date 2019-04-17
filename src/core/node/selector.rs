@@ -10,8 +10,10 @@ pub enum SelectorPart {
 
 fn stringify(part: &SelectorPart, class_name: String) -> String {
     match part {
-        SelectorPart::Itself => class_name,
+        SelectorPart::Itself => format!(".{}", class_name),
         SelectorPart::Spacing => " ".to_string(),
+        SelectorPart::Class(s) => format!(".{}", s),
+        SelectorPart::Id(s) => format!("#{}", s),
         _ => {
             Span::call_site()
                 .error(format!("Not stringifiable selector part: {:?}", part))
@@ -21,13 +23,13 @@ fn stringify(part: &SelectorPart, class_name: String) -> String {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Selector {
     pub parts: Vec<SelectorPart>,
 }
 
 impl Selector {
-    fn stringify(&self, class_name: String) -> String {
+    pub fn stringify(&self, class_name: String) -> String {
         let mut result = String::new();
 
         for part in &self.parts {

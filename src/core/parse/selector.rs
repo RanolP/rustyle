@@ -1,14 +1,15 @@
 use crate::core::node::{Selector, SelectorGroup, SelectorPart};
-use proc_macro::{Delimiter, Span, TokenTree};
+use proc_macro::{Delimiter, Span, TokenStream, TokenTree};
+use std::iter::Peekable;
 
 pub fn parse_selector_group<I: 'static>(
     read_tokens: Vec<TokenTree>,
-    tokens: &mut I,
-) -> SelectorGroup
+    tokens: &mut Peekable<I>,
+) -> Option<(SelectorGroup, TokenStream)>
 where
     I: Iterator<Item = TokenTree>,
 {
-    let mut tokens = read_tokens.into_iter().chain(tokens);
+    let mut tokens = read_tokens.into_iter().chain(tokens).peekable();
 
     let mut selectors = Vec::<Selector>::new();
     let mut selector_parts = Vec::<SelectorPart>::new();
@@ -40,7 +41,7 @@ where
                         .unwrap_or(group.span())
                         .error("Not parsable selectors")
                         .emit();
-                    return Vec::new();
+                    return None;
                 }
             }
 
@@ -52,7 +53,7 @@ where
         match current {
             TokenTree::Group(ref group) if group.delimiter() == Delimiter::Brace => {
                 emit_part(&mut selector_parts, &mut selectors);
-                break;
+                return Some((selectors, group.stream()));
             }
             TokenTree::Punct(ref punct) if punct.as_char() == ',' => {
                 emit_part(&mut selector_parts, &mut selectors);
@@ -74,13 +75,13 @@ where
         };
     }
 
-    emit_part(&mut selector_parts, &mut selectors);
-
-    // ? selector(,selector)*
-    selectors
+    panic!("WTF");
 }
 
-pub fn parse_selector<I>(current: &TokenTree, tokens: &mut I) -> Option<(SelectorPart, Span)>
+pub fn parse_selector<I>(
+    current: &TokenTree,
+    tokens: &mut Peekable<I>,
+) -> Option<(SelectorPart, Span)>
 where
     I: Iterator<Item = TokenTree>,
 {
@@ -122,14 +123,14 @@ where
     //? n = ':not(' (t|u|h|c|a|p) ')'
 }
 
-fn parse_identifier<I>(tokens: &mut I) -> Option<(Option<String>, Span)>
+fn parse_identifier<I>(tokens: &mut Peekable<I>) -> Option<(Option<String>, Span)>
 where
     I: Iterator<Item = TokenTree>,
 {
     let mut result = String::new();
     let mut span: Option<Span> = None;
 
-    while let Some(token) = tokens.next() {
+    while let Some(token) = tokens.peek().cloned() {
         if let Some(span) = span {
             if span.end() != token.span().start() {
                 break;
@@ -139,6 +140,7 @@ where
             _ => {
                 result.push_str(&token.to_string());
                 span = span.map_or(Some(token.span()), |span| span.join(token.span()));
+                tokens.next();
             }
         }
     }

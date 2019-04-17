@@ -1,13 +1,19 @@
-use crate::core::node::{DeclarationNode, MetadataNode, MetadataType, RulesetNode, RulesetType};
+use crate::core::node::{
+    DeclarationNode, MetadataNode, MetadataType, RulesetNode, RulesetType, Selector, SelectorGroup,
+};
 use crate::core::parse::{parse_declaration, parse_metadata, parse_selector_group};
 use proc_macro::{Delimiter, TokenTree};
 use std::iter::Peekable;
 
-pub fn parse_ruleset<I: 'static>(tokens: &mut Peekable<I>, selector: String) -> Option<RulesetNode>
+pub fn parse_ruleset<I: 'static>(
+    tokens: &mut Peekable<I>,
+    selector_group: Option<&SelectorGroup>,
+) -> Option<RulesetNode>
 where
     I: Iterator<Item = TokenTree>,
 {
     let mut declarations = Vec::<DeclarationNode>::new();
+    let mut nested_rulesets = Vec::<RulesetNode>::new();
     let mut root_metadatas = Vec::<MetadataNode>::new();
     let mut rule_metadatas = Vec::<MetadataNode>::new();
     let mut first = None;
@@ -44,7 +50,7 @@ where
                         if !rule_metadatas.is_empty() || !declarations.is_empty() {
                             node.range.warning("Put root metadata on the first of ruleset").emit();
                         }
-                        if !selector.is_empty() {
+                        if selector_group.is_some() {
                             node.range.error("Put root metadata on the root of ruleset").emit();
                             continue;
                         }
@@ -80,10 +86,26 @@ where
             || punct.as_char() == '>' =>
             {
                 let token = token.expect("Guaranteed by match");
-                let selectors = parse_selector_group(vec!(), tokens);
-                token.span().help(format!("Selectors are {:?}", selectors)).emit();
-                // todo: parse_selector()
-                break;
+                if let Some((parsed_selector_group, stream)) = parse_selector_group(vec!(), tokens) {
+                    let mut joined = Vec::<Selector>::new();
+                    if let Some(selector_group) = selector_group.cloned() {
+                        for selector in selector_group {
+                            joined.push(selector);
+                        }
+                    }
+                    for selector in parsed_selector_group {
+                        joined.push(selector);
+                    }
+
+                    if let Some(ruleset) = parse_ruleset(&mut stream.into_iter().peekable(), Some(&joined)) {
+
+                    nested_rulesets.push(ruleset);
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
+                }
             }
             Some(TokenTree::Group(ref token)) if token.delimiter() == Delimiter::Bracket => {
                 // todo: parse_selector()
@@ -119,10 +141,11 @@ where
             },
             declarations: declarations,
             metadatas: root_metadatas,
-            ruleset_type: if selector.is_empty() {
-                RulesetType::Root
+            nested_rulesets: nested_rulesets,
+            ruleset_type: if let Some(selector_group) = selector_group {
+                RulesetType::Selector(selector_group.to_vec())
             } else {
-                RulesetType::Selector(selector)
+                RulesetType::Root
             },
         })
     }

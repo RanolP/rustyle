@@ -9,6 +9,7 @@ Note: This crate absolutely unstable, I recommend you to don't use this crate on
 
 #![feature(proc_macro_diagnostic)]
 #![feature(proc_macro_span)]
+#![feature(slice_concat_ext)]
 #![warn(missing_docs, bare_trait_objects, elided_lifetimes_in_paths)]
 #![deny(anonymous_parameters)]
 

@@ -16,5 +16,5 @@ pub fn parse_rustyle(stream: TokenStream) -> Option<RulesetNode> {
 
     let stream = &mut stream.into_iter().peekable();
 
-    parse_ruleset(stream, "".to_string())
+    parse_ruleset(stream, None)
 }

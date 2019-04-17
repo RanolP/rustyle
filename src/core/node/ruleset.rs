@@ -1,13 +1,14 @@
-use super::{DeclarationNode, MetadataNode, Node};
+use super::{DeclarationNode, MetadataNode, Node, Selector, SelectorGroup};
 use crate::core::compile_context::CompileContext;
 use crate::core::metadata::RootMetadataProcessor;
 use crate::global::ROOT_METADATA_PROCESSORS;
 use proc_macro::Span;
 use std::collections::HashMap;
+use std::slice::SliceConcatExt;
 
 #[derive(Debug, PartialEq)]
 pub enum RulesetType {
-    Selector(String),
+    Selector(SelectorGroup),
     Root,
 }
 
@@ -16,6 +17,7 @@ pub struct RulesetNode {
     pub range: Option<Span>,
     pub metadatas: Vec<MetadataNode>,
     pub declarations: Vec<DeclarationNode>,
+    pub nested_rulesets: Vec<RulesetNode>,
     pub ruleset_type: RulesetType,
 }
 
@@ -61,8 +63,21 @@ impl Node for RulesetNode {
         }
 
         let mut result = String::new();
-        result.push_str(".");
-        result.push_str(base_class);
+
+        let base = match &self.ruleset_type {
+            RulesetType::Root => format!(".{}", base_class),
+            RulesetType::Selector(group) => format!(
+                "\n{}",
+                group
+                    .iter()
+                    .map(|selector| selector.stringify(base_class.to_string()))
+                    .collect::<Vec<String>>()
+                    .join(",")
+            ),
+        };
+
+        result.push_str(&base);
+
         result.push_str(" {\n");
 
         let mut appeared_nodes = HashMap::<String, (&DeclarationNode, bool)>::new();
@@ -97,6 +112,10 @@ impl Node for RulesetNode {
         }
 
         result.push_str("}");
+
+        for ruleset in &self.nested_rulesets {
+            result.push_str(&ruleset.generate_code(base_class, context));
+        }
 
         result
     }
