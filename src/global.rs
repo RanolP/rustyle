@@ -11,13 +11,13 @@ lazy_static! {
     pub static ref KEYWORDS: Arc<Mutex<HashMap<String, HashSet<String>>>> =
         Arc::new(Mutex::new(HashMap::new()));
     pub static ref IS_STDLIB_INITIALIZED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
-    pub static ref PROPERTIES: Arc<Mutex<HashMap<String, Box<Property>>>> =
+    pub static ref PROPERTIES: Arc<Mutex<HashMap<String, Box<dyn Property>>>> =
         Arc::new(Mutex::new(HashMap::new()));
     pub static ref RULE_METADATA_PROCESSORS: Arc<
-        Mutex<HashMap<String, Box<RuleMetadataProcessor>>>
+        Mutex<HashMap<String, Box<dyn RuleMetadataProcessor>>>
     > = Arc::new(Mutex::new(HashMap::new()));
     pub static ref ROOT_METADATA_PROCESSORS: Arc<
-        Mutex<HashMap<String, Box<RootMetadataProcessor>>>
+        Mutex<HashMap<String, Box<dyn RootMetadataProcessor>>>
     > = Arc::new(Mutex::new(HashMap::new()));
 
     pub static ref OUTPUT: String =

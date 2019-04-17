@@ -12,7 +12,7 @@ pub struct DeclarationNode {
     pub range: Span,
     pub prefix: String,
     pub name: String,
-    pub value: Box<Cssifiable>,
+    pub value: Box<dyn Cssifiable>,
     pub metadatas: Vec<MetadataNode>,
 }
 
@@ -29,7 +29,7 @@ impl Node for DeclarationNode {
         let rule_metadata_processors = RULE_METADATA_PROCESSORS.lock().unwrap();
 
         let mut processors =
-            HashMap::<String, (&Box<RuleMetadataProcessor>, Vec<MetadataNode>)>::new();
+            HashMap::<String, (&Box<dyn RuleMetadataProcessor>, Vec<MetadataNode>)>::new();
 
         for processor in rule_metadata_processors.values() {
             processors.insert(processor.name().to_string(), (processor, Vec::new()));

@@ -2,7 +2,7 @@ use std::any::Any;
 use std::fmt::Debug;
 
 pub trait AsAny {
-    fn as_any(&self) -> &Any;
+    fn as_any(&self) -> &dyn Any;
 }
 
 pub trait Cssifiable: AsAny + Any + Debug {
@@ -16,7 +16,7 @@ pub trait Cssifiable: AsAny + Any + Debug {
 }
 
 impl<T: Any> AsAny for T {
-    fn as_any(&self) -> &Any {
+    fn as_any(&self) -> &dyn Any {
         self
     }
 }

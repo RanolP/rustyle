@@ -1,11 +1,11 @@
 use crate::core::csstype::{Color, CssKeyword, Cssifiable, HslColor, RgbColor};
 
 #[allow(unused)]
-pub fn as_color(arg: &Box<dyn Cssifiable>) -> Option<&Color> {
+pub fn as_color(arg: &Box<dyn Cssifiable>) -> Option<&dyn Color> {
     let arg = arg.as_any();
     arg.downcast_ref::<RgbColor>()
-        .map(|it| it as &Color)
-        .or_else(|| arg.downcast_ref::<HslColor>().map(|it| it as &Color))
+        .map(|it| it as &dyn Color)
+        .or_else(|| arg.downcast_ref::<HslColor>().map(|it| it as &dyn Color))
 }
 
 #[allow(unused)]

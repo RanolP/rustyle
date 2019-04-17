@@ -9,7 +9,8 @@ Note: This crate absolutely unstable, I recommend you to don't use this crate on
 
 #![feature(proc_macro_diagnostic)]
 #![feature(proc_macro_span)]
-#![warn(missing_docs)]
+#![warn(missing_docs, bare_trait_objects, elided_lifetimes_in_paths)]
+#![deny(anonymous_parameters)]
 
 extern crate fasthash;
 extern crate proc_macro;
