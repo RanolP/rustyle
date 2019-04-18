@@ -6,14 +6,17 @@ pub enum SelectorPart {
     Spacing,
     Class(String),
     Id(String),
+    Element(String),
 }
 
 fn stringify(part: &SelectorPart, class_name: String) -> String {
+    #[allow(unreachable_patterns)]
     match part {
         SelectorPart::Itself => format!(".{}", class_name),
         SelectorPart::Spacing => " ".to_string(),
         SelectorPart::Class(s) => format!(".{}", s),
         SelectorPart::Id(s) => format!("#{}", s),
+        SelectorPart::Element(s) => s.clone(),
         _ => {
             Span::call_site()
                 .error(format!("Not stringifiable selector part: {:?}", part))

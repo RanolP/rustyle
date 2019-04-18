@@ -33,21 +33,33 @@ where
         }
     };
 
-    while let Some(current) = tokens.next() {
+    while let Some(current) = tokens.peek().cloned() {
         if ignore_token {
-            if let TokenTree::Group(ref group) = current {
-                if group.delimiter() == Delimiter::Brace {
+            match current {
+                TokenTree::Group(ref group) if group.delimiter() == Delimiter::Brace => {
                     last_part_span
                         .unwrap_or(group.span())
                         .error("Not parsable selectors")
                         .emit();
                     return None;
                 }
+                TokenTree::Punct(ref punct) if punct.as_char() == ',' => {
+                    if let Some(last_part_span) = last_part_span {
+                        last_part_span.error("Not parsable selectors").emit();
+                    }
+                    last_part_span = None;
+                    selector_parts.clear();
+                    ignore_token = false;
+                }
+                _ => {
+                    last_part_span = last_part_span
+                        .unwrap_or(current.span())
+                        .join(current.span());
+                }
             }
 
-            last_part_span = last_part_span
-                .unwrap_or(current.span())
-                .join(current.span());
+            tokens.next();
+
             continue;
         }
         match current {
@@ -56,16 +68,17 @@ where
                 return Some((selectors, group.stream()));
             }
             TokenTree::Punct(ref punct) if punct.as_char() == ',' => {
+                tokens.next();
                 emit_part(&mut selector_parts, &mut selectors);
             }
             _ => {
                 if let Some((result, span)) = parse_selector(&current, &mut tokens) {
-                    selector_parts.push(result);
                     if let Some(last_part_span) = last_part_span {
-                        if last_part_span.end() != span.end() {
+                        if last_part_span.end() != span.start() {
                             selector_parts.push(SelectorPart::Spacing);
                         }
                     }
+                    selector_parts.push(result);
                     last_part_span = Some(span);
                 } else {
                     ignore_token = true;
@@ -75,7 +88,7 @@ where
         };
     }
 
-    panic!("WTF");
+    None
 }
 
 pub fn parse_selector<I>(
@@ -87,18 +100,15 @@ where
 {
     match current {
         TokenTree::Punct(ref punct) if punct.as_char() == '&' => {
+            tokens.next();
             Some((SelectorPart::Itself, current.span()))
         }
         TokenTree::Punct(ref punct) if punct.as_char() == '.' => {
+            tokens.next();
             let result = parse_identifier(tokens);
             if let Some((ident, span)) = result {
                 let span = current.span().join(span).expect("In the same file");
-                if let Some(ident) = ident {
-                    Some((SelectorPart::Class(ident), span))
-                } else {
-                    span.error("Invalid identifier found").emit();
-                    None
-                }
+                Some((SelectorPart::Class(ident), span))
             } else {
                 current
                     .span()
@@ -107,7 +117,29 @@ where
                 None
             }
         }
-        _ => None,
+        TokenTree::Punct(ref punct) if punct.as_char() == '#' => {
+            tokens.next();
+            let result = parse_identifier(tokens);
+            if let Some((ident, span)) = result {
+                let span = current.span().join(span).expect("In the same file");
+                Some((SelectorPart::Id(ident), span))
+            } else {
+                current
+                    .span()
+                    .error("Expected identifier but no identifier received")
+                    .emit();
+                None
+            }
+        }
+        _ => {
+            let result = parse_identifier(tokens);
+            if let Some((ident, span)) = result {
+                let span = current.span().join(span).expect("In the same file");
+                Some((SelectorPart::Element(ident), span))
+            } else {
+                None
+            }
+        }
     }
     //? S = Q(CQ)*
     //? C = + | > | ~
@@ -123,7 +155,7 @@ where
     //? n = ':not(' (t|u|h|c|a|p) ')'
 }
 
-fn parse_identifier<I>(tokens: &mut Peekable<I>) -> Option<(Option<String>, Span)>
+fn parse_identifier<I>(tokens: &mut Peekable<I>) -> Option<(String, Span)>
 where
     I: Iterator<Item = TokenTree>,
 {
@@ -137,6 +169,14 @@ where
             }
         }
         match token {
+            TokenTree::Group(ref group) if group.delimiter() == Delimiter::Brace => {
+                break;
+            }
+            TokenTree::Punct(ref punct)
+                if punct.as_char() == '.' || punct.as_char() == '#' || punct.as_char() == ':' =>
+            {
+                break;
+            }
             _ => {
                 result.push_str(&token.to_string());
                 span = span.map_or(Some(token.span()), |span| span.join(token.span()));
@@ -145,5 +185,5 @@ where
         }
     }
 
-    span.map(|span| (Some(result), span))
+    span.map(|span| (result, span))
 }
