@@ -1,4 +1,4 @@
-use super::{DeclarationNode, MetadataNode, Node, Selector, SelectorGroup};
+use super::{DeclarationNode, MetadataNode, Node, SelectorGroup};
 use crate::core::compile_context::CompileContext;
 use crate::core::metadata::RootMetadataProcessor;
 use crate::global::ROOT_METADATA_PROCESSORS;

@@ -85,7 +85,6 @@ where
             // child selector
             || punct.as_char() == '>' =>
             {
-                let token = token.expect("Guaranteed by match");
                 if let Some((parsed_selector_group, stream)) = parse_selector_group(vec!(), tokens) {
                     let mut joined = Vec::<Selector>::new();
                     if let Some(selector_group) = selector_group.cloned() {
