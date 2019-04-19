@@ -18,6 +18,44 @@ where
 
     let emit_part = |selector_parts: &mut Vec<SelectorPart>, selectors: &mut Vec<Selector>| {
         if !selector_parts.is_empty() {
+            let filtered = selector_parts
+                .iter()
+                .filter(|part| {
+                    if let SelectorPart::PseudoClass { .. } = part {
+                        true
+                    } else {
+                        false
+                    }
+                })
+                .collect::<Vec<&SelectorPart>>();
+
+            if filtered.len() >= 2 {
+                for part in filtered {
+                    if let Some(span) = part.span() {
+                        span.error("Use only one pseudo class").emit();
+                    }
+                }
+            }
+
+            let filtered = selector_parts
+                .iter()
+                .filter(|part| {
+                    if let SelectorPart::PseudoElement { .. } = part {
+                        true
+                    } else {
+                        false
+                    }
+                })
+                .collect::<Vec<&SelectorPart>>();
+
+            if filtered.len() >= 2 {
+                for part in filtered {
+                    if let Some(span) = part.span() {
+                        span.error("Use only one pseudo element").emit();
+                    }
+                }
+            }
+
             selectors.push(Selector {
                 parts: selector_parts
                     .into_iter()
@@ -72,14 +110,17 @@ where
                 emit_part(&mut selector_parts, &mut selectors);
             }
             _ => {
-                if let Some((result, span)) = parse_selector(&current, &mut tokens) {
+                if let Some(result) = parse_selector(&current, &mut tokens) {
                     if let Some(last_part_span) = last_part_span {
-                        if last_part_span.end() != span.start() {
-                            selector_parts.push(SelectorPart::Spacing);
+                        if let Some(span) = result.span() {
+                            if last_part_span.end() != span.start() {
+                                selector_parts.push(SelectorPart::Spacing);
+                            }
                         }
                     }
+                    last_part_span = result.span().or(last_part_span);
+
                     selector_parts.push(result);
-                    last_part_span = Some(span);
                 } else {
                     current.span().error("Not parsable selector").emit();
                     ignore_token = true;
@@ -92,24 +133,23 @@ where
     None
 }
 
-pub fn parse_selector<I>(
-    current: &TokenTree,
-    tokens: &mut Peekable<I>,
-) -> Option<(SelectorPart, Span)>
+pub fn parse_selector<I>(current: &TokenTree, tokens: &mut Peekable<I>) -> Option<SelectorPart>
 where
     I: Iterator<Item = TokenTree>,
 {
     match current {
         TokenTree::Punct(ref punct) if punct.as_char() == '&' => {
             tokens.next();
-            Some((SelectorPart::Itself, current.span()))
+            Some(SelectorPart::Itself {
+                span: current.span(),
+            })
         }
         TokenTree::Punct(ref punct) if punct.as_char() == '.' => {
             tokens.next();
             let result = parse_identifier(Some(current.span()), tokens);
             if let Some((ident, span)) = result {
                 let span = current.span().join(span).expect("In the same file");
-                Some((SelectorPart::Class(ident), span))
+                Some(SelectorPart::Class { span, name: ident })
             } else {
                 current
                     .span()
@@ -135,16 +175,14 @@ where
             if let Some((ident, span)) = result {
                 let span = current.span().join(span).expect("In the same file");
                 if is_pseudo_element {
-                    Some((SelectorPart::PseudoElement(ident), span))
+                    Some(SelectorPart::PseudoElement { span, name: ident })
                 } else {
                     // todo: parse parameter
-                    Some((
-                        SelectorPart::PseudoClass {
-                            name: ident,
-                            parameter: None,
-                        },
+                    Some(SelectorPart::PseudoClass {
                         span,
-                    ))
+                        name: ident,
+                        parameter: None,
+                    })
                 }
             } else {
                 current
@@ -159,7 +197,7 @@ where
             let result = parse_identifier(Some(current.span()), tokens);
             if let Some((ident, span)) = result {
                 let span = current.span().join(span).expect("In the same file");
-                Some((SelectorPart::Id(ident), span))
+                Some(SelectorPart::Id { span, name: ident })
             } else {
                 current
                     .span()
@@ -171,20 +209,21 @@ where
 
         TokenTree::Punct(ref punct) if punct.as_char() == '*' => {
             tokens.next();
-            Some((SelectorPart::Universal { namespace: None }, current.span()))
+            Some(SelectorPart::Universal {
+                span: current.span(),
+                namespace: None,
+            })
         }
         _ => {
             let result = parse_identifier(None, tokens);
             if let Some((ident, span)) = result {
                 let span = current.span().join(span).expect("In the same file");
                 // todo: css namespace support (e.g. `svg|a`)
-                Some((
-                    SelectorPart::Element {
-                        namespace: None,
-                        name: ident,
-                    },
-                    span,
-                ))
+                Some(SelectorPart::Element {
+                    span: span,
+                    namespace: None,
+                    name: ident,
+                })
             } else {
                 None
             }

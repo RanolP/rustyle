@@ -1,6 +1,6 @@
 use crate::core::csstype::Cssifiable;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum CssKeywordType {
     Initial,
     Inherit,
