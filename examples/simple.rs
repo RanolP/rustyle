@@ -8,8 +8,8 @@ fn main() {
     let (test, test_file) = rustyle! {
         background-color: #00aabb;
 
-        &:hover *.head {
-            background-color: #ccbbdd;
+        &:hover::first-letter *.head {
+            color: #c00;
         }
 
         #[no_warn(vendor_prefix)]
