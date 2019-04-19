@@ -6,7 +6,19 @@ pub enum SelectorPart {
     Spacing,
     Class(String),
     Id(String),
-    Element(String),
+    Element {
+        namespace: Option<String>,
+        name: String,
+    },
+    Universal {
+        namespace: Option<String>,
+    },
+    PseudoClass {
+        name: String,
+        // todo: parameter validation required?
+        parameter: Option<String>,
+    },
+    PseudoElement(String),
 }
 
 fn stringify(part: &SelectorPart, class_name: String) -> String {
@@ -16,7 +28,30 @@ fn stringify(part: &SelectorPart, class_name: String) -> String {
         SelectorPart::Spacing => " ".to_string(),
         SelectorPart::Class(s) => format!(".{}", s),
         SelectorPart::Id(s) => format!("#{}", s),
-        SelectorPart::Element(s) => s.clone(),
+        SelectorPart::Element { namespace, name } => format!(
+            "{}{}",
+            namespace
+                .clone()
+                .map_or("".to_string(), |namespace| format!("{}|", namespace)),
+            name
+        ),
+        SelectorPart::Universal { namespace } => format!(
+            "{}*",
+            namespace
+                .clone()
+                .map_or("".to_string(), |namespace| format!("{}|", namespace)),
+        ),
+        SelectorPart::PseudoElement(name) => format!("::{}", name),
+        SelectorPart::PseudoClass { name, parameter } => format!(
+            ":{}{}",
+            name,
+            if let Some(parameter) = parameter {
+                format!("({})", parameter)
+            } else {
+                "".to_string()
+            }
+        ),
+
         _ => {
             Span::call_site()
                 .error(format!("Not stringifiable selector part: {:?}", part))

@@ -39,7 +39,7 @@ where
                 TokenTree::Group(ref group) if group.delimiter() == Delimiter::Brace => {
                     last_part_span
                         .unwrap_or(group.span())
-                        .error("Not parsable selectors")
+                        .warning("Parse failed because of before error(s)")
                         .emit();
                     return None;
                 }
@@ -81,6 +81,7 @@ where
                     selector_parts.push(result);
                     last_part_span = Some(span);
                 } else {
+                    current.span().error("Not parsable selector").emit();
                     ignore_token = true;
                     last_part_span = Some(current.span());
                 }
@@ -105,7 +106,7 @@ where
         }
         TokenTree::Punct(ref punct) if punct.as_char() == '.' => {
             tokens.next();
-            let result = parse_identifier(tokens);
+            let result = parse_identifier(Some(current.span()), tokens);
             if let Some((ident, span)) = result {
                 let span = current.span().join(span).expect("In the same file");
                 Some((SelectorPart::Class(ident), span))
@@ -117,9 +118,45 @@ where
                 None
             }
         }
+        TokenTree::Punct(ref punct) if punct.as_char() == ':' => {
+            tokens.next();
+            let is_pseudo_element = if let Some(TokenTree::Punct(ref punct)) = tokens.peek() {
+                if punct.as_char() == ':' {
+                    tokens.next();
+                    true
+                } else {
+                    false
+                }
+            } else {
+                false
+            };
+
+            let result = parse_identifier(Some(current.span()), tokens);
+            if let Some((ident, span)) = result {
+                let span = current.span().join(span).expect("In the same file");
+                if is_pseudo_element {
+                    Some((SelectorPart::PseudoElement(ident), span))
+                } else {
+                    // todo: parse parameter
+                    Some((
+                        SelectorPart::PseudoClass {
+                            name: ident,
+                            parameter: None,
+                        },
+                        span,
+                    ))
+                }
+            } else {
+                current
+                    .span()
+                    .error("Expected identifier but no identifier received")
+                    .emit();
+                None
+            }
+        }
         TokenTree::Punct(ref punct) if punct.as_char() == '#' => {
             tokens.next();
-            let result = parse_identifier(tokens);
+            let result = parse_identifier(Some(current.span()), tokens);
             if let Some((ident, span)) = result {
                 let span = current.span().join(span).expect("In the same file");
                 Some((SelectorPart::Id(ident), span))
@@ -131,11 +168,23 @@ where
                 None
             }
         }
+
+        TokenTree::Punct(ref punct) if punct.as_char() == '*' => {
+            tokens.next();
+            Some((SelectorPart::Universal { namespace: None }, current.span()))
+        }
         _ => {
-            let result = parse_identifier(tokens);
+            let result = parse_identifier(None, tokens);
             if let Some((ident, span)) = result {
                 let span = current.span().join(span).expect("In the same file");
-                Some((SelectorPart::Element(ident), span))
+                // todo: css namespace support (e.g. `svg|a`)
+                Some((
+                    SelectorPart::Element {
+                        namespace: None,
+                        name: ident,
+                    },
+                    span,
+                ))
             } else {
                 None
             }
@@ -143,24 +192,22 @@ where
     }
     //? S = Q(CQ)*
     //? C = + | > | ~
-    //? Q = (t|u)? (h|c|a|p|n)*
+    //? Q = (t|u)? (a|p|n)*
     //? t = T?e
     //? T = (ident|'*')? '|'
     //? e = all element name
     //? u = T? '*'
-    //? h = '#'ident
-    //? c = '.'ident
     //? a = '[' T ident (('^=' | '$=' | '*=' | '=' | '~=' | '|=') (ident | String))? ']'
     //? p = ':'{1,2} ident ('('expr')')?
     //? n = ':not(' (t|u|h|c|a|p) ')'
 }
 
-fn parse_identifier<I>(tokens: &mut Peekable<I>) -> Option<(String, Span)>
+fn parse_identifier<I>(span: Option<Span>, tokens: &mut Peekable<I>) -> Option<(String, Span)>
 where
     I: Iterator<Item = TokenTree>,
 {
     let mut result = String::new();
-    let mut span: Option<Span> = None;
+    let mut span = span;
 
     while let Some(token) = tokens.peek().cloned() {
         if let Some(span) = span {
@@ -169,7 +216,7 @@ where
             }
         }
         match token {
-            TokenTree::Group(ref group) if group.delimiter() == Delimiter::Brace => {
+            TokenTree::Group(_) => {
                 break;
             }
             TokenTree::Punct(ref punct)
@@ -185,5 +232,9 @@ where
         }
     }
 
-    span.map(|span| (result, span))
+    if result.is_empty() {
+        None
+    } else {
+        span.map(|span| (result, span))
+    }
 }

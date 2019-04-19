@@ -8,7 +8,7 @@ fn main() {
     let (test, test_file) = rustyle! {
         background-color: #00aabb;
 
-        &.hover h1.head {
+        &:hover *.head {
             background-color: #ccbbdd;
         }
 
