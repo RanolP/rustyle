@@ -100,8 +100,6 @@ impl RgbColor {
 
         let mut color_chars = color.chars();
 
-        let parse = |data: &str| u8::from_str_radix(data, 16).expect("guaranteed by before if");
-
         let mut read = |count: usize| {
             let mut s = String::new();
 
@@ -109,37 +107,39 @@ impl RgbColor {
                 s.push(color_chars.next().expect("guaranteed by caller"));
             }
 
-            s
+            u8::from_str_radix(&s, 16).expect("guaranteed by caller")
         };
+
+        let dup = |v: u8| v + (v << 4);
 
         match color.len() {
             3 => Ok(RgbColor {
                 origin: input.to_string(),
-                red: parse(&read(1)),
-                green: parse(&read(1)),
-                blue: parse(&read(1)),
+                red: dup(read(1)),
+                green: dup(read(1)),
+                blue: dup(read(1)),
                 alpha: 0xff,
             }),
             4 => Ok(RgbColor {
                 origin: input.to_string(),
-                red: parse(&read(1)),
-                green: parse(&read(1)),
-                blue: parse(&read(1)),
-                alpha: parse(&read(1)),
+                red: dup(read(1)),
+                green: dup(read(1)),
+                blue: dup(read(1)),
+                alpha: dup(read(1)),
             }),
             6 => Ok(RgbColor {
                 origin: input.to_string(),
-                red: parse(&read(2)),
-                green: parse(&read(2)),
-                blue: parse(&read(2)),
+                red: read(2),
+                green: read(2),
+                blue: read(2),
                 alpha: 0xff,
             }),
             8 => Ok(RgbColor {
                 origin: input.to_string(),
-                red: parse(&read(2)),
-                green: parse(&read(2)),
-                blue: parse(&read(2)),
-                alpha: parse(&read(2)),
+                red: read(2),
+                green: read(2),
+                blue: read(2),
+                alpha: read(2),
             }),
             _ => Err(ColorParseError::InvalidHexColor)?,
         }
