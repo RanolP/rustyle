@@ -97,8 +97,7 @@ where
                     }
 
                     if let Some(ruleset) = parse_ruleset(&mut stream.into_iter().peekable(), Some(&joined)) {
-
-                    nested_rulesets.push(ruleset);
+                        nested_rulesets.push(ruleset);
                     } else {
                         break;
                     }
@@ -133,19 +132,13 @@ where
         None
     } else {
         Some(RulesetNode {
-            range: if let Some(first) = first {
-                Some(first.join(last.unwrap_or(first)).expect("In the same file"))
-            } else {
-                None
-            },
+            range: first.map(|first| first.join(last.unwrap_or(first)).expect("In the same file")),
             declarations: declarations,
             metadatas: root_metadatas,
             nested_rulesets: nested_rulesets,
-            ruleset_type: if let Some(selector_group) = selector_group {
+            ruleset_type: selector_group.map_or(RulesetType::Root, |selector_group| {
                 RulesetType::Selector(selector_group.to_vec())
-            } else {
-                RulesetType::Root
-            },
+            }),
         })
     }
 }
