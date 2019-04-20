@@ -18,7 +18,7 @@ Read like \[rough style\]. It seems like styled-components, emotion, glamor, and
 Write CSS-in-Rust like this! (We call it rusty css syntax)
 
 ```rust
-let CLASS = css! {
+let (Class, File) = css! {
   background-color: gray;
 
   &:hover {
