@@ -1,149 +1,65 @@
 use proc_macro::Span;
 
-#[derive(Debug, Clone)]
-pub enum SelectorPart {
-    Itself {
-        span: Span,
-    },
+#[derive(Debug, Clone, PartialEq)]
+pub enum SelectorPartType {
+    Itself,
     Spacing,
     Class {
-        span: Span,
         name: String,
     },
     Id {
-        span: Span,
         name: String,
     },
     Element {
-        span: Span,
         namespace: Option<String>,
         name: String,
     },
     Universal {
-        span: Span,
         namespace: Option<String>,
     },
     PseudoClass {
-        span: Span,
         name: String,
         // todo: parameter validation required?
         parameter: Option<String>,
     },
     PseudoElement {
-        span: Span,
         name: String,
+    },
+    Child {
+        selector: Selector,
+    },
+    NextSibling {
+        selector: Selector,
+    },
+    SubsequentSibling {
+        selector: Selector,
     },
 }
 
-impl PartialEq for SelectorPart {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (SelectorPart::Itself { .. }, SelectorPart::Itself { .. }) => true,
-            (SelectorPart::Spacing, SelectorPart::Spacing) => true,
-            (
-                SelectorPart::Class {
-                    name: left_name, ..
-                },
-                SelectorPart::Class {
-                    name: right_name, ..
-                },
-            ) => left_name == right_name,
-            (
-                SelectorPart::Id {
-                    name: left_name, ..
-                },
-                SelectorPart::Id {
-                    name: right_name, ..
-                },
-            ) => left_name == right_name,
-            (
-                SelectorPart::Element {
-                    namespace: left_namespace,
-                    name: left_name,
-                    ..
-                },
-                SelectorPart::Element {
-                    namespace: right_namespace,
-                    name: right_name,
-                    ..
-                },
-            ) => left_namespace == right_namespace && left_name == right_name,
-            (
-                SelectorPart::Universal {
-                    namespace: left_namespace,
-                    ..
-                },
-                SelectorPart::Universal {
-                    namespace: right_namespace,
-                    ..
-                },
-            ) => left_namespace == right_namespace,
-            (
-                SelectorPart::PseudoClass {
-                    name: left_name,
-                    parameter: left_parameter,
-                    ..
-                },
-                SelectorPart::PseudoClass {
-                    name: right_name,
-                    parameter: right_parameter,
-                    ..
-                },
-            ) => left_name == right_name && left_parameter == right_parameter,
-            (
-                SelectorPart::PseudoElement {
-                    name: left_name, ..
-                },
-                SelectorPart::PseudoElement {
-                    name: right_name, ..
-                },
-            ) => left_name == right_name,
-            _ => false,
-        }
-    }
-}
+pub type SelectorPart = (SelectorPartType, Option<Span>);
 
-impl SelectorPart {
-    pub fn span(&self) -> Option<Span> {
-        match self {
-            SelectorPart::Itself { span, .. }
-            | SelectorPart::Class { span, .. }
-            | SelectorPart::Id { span, .. }
-            | SelectorPart::Element { span, .. }
-            | SelectorPart::Universal { span, .. }
-            | SelectorPart::PseudoClass { span, .. }
-            | SelectorPart::PseudoElement { span, .. } => Some(*span),
-            _ => None,
-        }
-    }
-}
-
-fn stringify(part: &SelectorPart, class_name: String) -> String {
+fn stringify(part: &SelectorPartType, class_name: String) -> String {
     #[allow(unreachable_patterns)]
     match part {
-        SelectorPart::Itself { .. } => format!(".{}", class_name),
-        SelectorPart::Spacing => " ".to_string(),
-        SelectorPart::Class { name, .. } => format!(".{}", name),
-        SelectorPart::Id { name, .. } => format!("#{}", name),
-        SelectorPart::Element {
-            namespace, name, ..
-        } => format!(
+        SelectorPartType::Itself => format!(".{}", class_name),
+        SelectorPartType::Spacing => " ".to_string(),
+        SelectorPartType::Class { name } => format!(".{}", name),
+        SelectorPartType::Id { name } => format!("#{}", name),
+        SelectorPartType::Element { namespace, name } => format!(
             "{}{}",
             namespace
                 .clone()
                 .map_or("".to_string(), |namespace| format!("{}|", namespace)),
             name
         ),
-        SelectorPart::Universal { namespace, .. } => format!(
+        SelectorPartType::Universal { namespace } => format!(
             "{}*",
             namespace
                 .clone()
                 .map_or("".to_string(), |namespace| format!("{}|", namespace)),
         ),
-        SelectorPart::PseudoElement { name, .. } => format!("::{}", name),
-        SelectorPart::PseudoClass {
-            name, parameter, ..
-        } => format!(
+        SelectorPartType::PseudoElement { name } => format!("::{}", name),
+        SelectorPartType::PseudoClass { name, parameter } => format!(
             ":{}{}",
             name,
             if let Some(parameter) = parameter {
@@ -152,6 +68,7 @@ fn stringify(part: &SelectorPart, class_name: String) -> String {
                 "".to_string()
             }
         ),
+        SelectorPartType::Child { selector } => format!(">{}", selector.stringify(class_name)),
 
         _ => {
             Span::call_site()
@@ -162,9 +79,20 @@ fn stringify(part: &SelectorPart, class_name: String) -> String {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Clone)]
 pub struct Selector {
     pub parts: Vec<SelectorPart>,
+}
+
+impl PartialEq for Selector {
+    fn eq(&self, other: &Self) -> bool {
+        for (left, right) in self.parts.iter().zip(other.parts.iter()) {
+            if left.0 != right.0 {
+                return false;
+            }
+        }
+        true
+    }
 }
 
 impl Selector {
@@ -172,10 +100,22 @@ impl Selector {
         let mut result = String::new();
 
         for part in &self.parts {
-            result.push_str(&stringify(part, class_name.clone()));
+            result.push_str(&stringify(&part.0, class_name.clone()));
         }
 
         result
+    }
+
+    pub fn span(&self) -> Option<Span> {
+        if let (Some(first), Some(last)) = (self.parts.first(), self.parts.last()) {
+            first.1.map_or(last.1, |first| {
+                last.1
+                    .map(|last| first.join(last).expect("In the same file"))
+                    .or(Some(first))
+            })
+        } else {
+            None
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::core::node::{Selector, SelectorGroup, SelectorPart};
+use crate::core::node::{Selector, SelectorGroup, SelectorPart, SelectorPartType};
 use proc_macro::{Delimiter, Span, TokenStream, TokenTree};
 
 use std::collections::HashMap;
@@ -46,22 +46,22 @@ where
             let mut map = HashMap::<&str, Box<dyn Fn(&&SelectorPart) -> bool>>::with_capacity(2);
             map.insert(
                 "pseudo class",
-                Box::new(|part| match part {
-                    SelectorPart::PseudoClass { .. } => true,
+                Box::new(|part| match part.0 {
+                    SelectorPartType::PseudoClass { .. } => true,
                     _ => false,
                 }),
             );
             map.insert(
                 "pseudo element",
-                Box::new(|part| match part {
-                    SelectorPart::PseudoElement { .. } => true,
+                Box::new(|part| match part.0 {
+                    SelectorPartType::PseudoElement { .. } => true,
                     _ => false,
                 }),
             );
             map.insert(
                 "element",
-                Box::new(|part| match part {
-                    SelectorPart::Element { .. } => true,
+                Box::new(|part| match part.0 {
+                    SelectorPartType::Element { .. } => true,
                     _ => false,
                 }),
             );
@@ -77,7 +77,7 @@ where
 
                 if filtered.len() >= 2 {
                     for part in filtered {
-                        if let Some(span) = part.span() {
+                        if let Some(span) = part.1 {
                             span.error(format!("Use only one {}", name)).emit();
                             duplicate_detected = true;
                         }
@@ -92,7 +92,7 @@ where
                     parts: selector_parts
                         .into_iter()
                         .rev()
-                        .skip_while(|part| *part == SelectorPart::Spacing)
+                        .skip_while(|part| part.0 == SelectorPartType::Spacing)
                         .map(|part| part.clone())
                         .collect::<Vec<SelectorPart>>()
                         .into_iter()
@@ -141,12 +141,12 @@ where
             }
             _ => {
                 if let Some(result) = parse_selector_part(&current, tokens) {
-                    if let (Some(last_part_span), Some(span)) = (last_part_span, result.span()) {
+                    if let (Some(last_part_span), Some(span)) = (last_part_span, result.1) {
                         if last_part_span.end() != span.start() {
-                            selector_parts.push(SelectorPart::Spacing);
+                            selector_parts.push((SelectorPartType::Spacing, None));
                         }
                     }
-                    last_part_span = result.span().or(last_part_span);
+                    last_part_span = result.1.or(last_part_span);
 
                     selector_parts.push(result);
                 } else {
@@ -168,8 +168,51 @@ where
     match current {
         TokenTree::Punct(ref punct) if punct.as_char() == '&' => {
             tokens.next();
-            Some(SelectorPart::Itself {
-                span: current.span(),
+            Some((SelectorPartType::Itself, Some(current.span())))
+        }
+        TokenTree::Punct(ref punct) if punct.as_char() == '>' => {
+            tokens.next();
+            parse_selector(tokens).map(|selector| {
+                let span = selector.span();
+                (
+                    SelectorPartType::Child { selector },
+                    Some(
+                        current
+                            .span()
+                            .join(span.expect("Must have"))
+                            .expect("In the same file"),
+                    ),
+                )
+            })
+        }
+        TokenTree::Punct(ref punct) if punct.as_char() == '+' => {
+            tokens.next();
+            parse_selector(tokens).map(|selector| {
+                let span = selector.span();
+                (
+                    SelectorPartType::NextSibling { selector },
+                    Some(
+                        current
+                            .span()
+                            .join(span.expect("Must have"))
+                            .expect("In the same file"),
+                    ),
+                )
+            })
+        }
+        TokenTree::Punct(ref punct) if punct.as_char() == '~' => {
+            tokens.next();
+            parse_selector(tokens).map(|selector| {
+                let span = selector.span();
+                (
+                    SelectorPartType::SubsequentSibling { selector },
+                    Some(
+                        current
+                            .span()
+                            .join(span.expect("Must have"))
+                            .expect("In the same file"),
+                    ),
+                )
             })
         }
         TokenTree::Punct(ref punct) if punct.as_char() == '.' => {
@@ -177,7 +220,7 @@ where
             let result = parse_identifier(Some(current.span()), tokens);
             if let Some((ident, span)) = result {
                 let span = current.span().join(span).expect("In the same file");
-                Some(SelectorPart::Class { span, name: ident })
+                Some((SelectorPartType::Class { name: ident }, Some(span)))
             } else {
                 current
                     .span()
@@ -203,14 +246,16 @@ where
             if let Some((ident, span)) = result {
                 let span = current.span().join(span).expect("In the same file");
                 if is_pseudo_element {
-                    Some(SelectorPart::PseudoElement { span, name: ident })
+                    Some((SelectorPartType::PseudoElement { name: ident }, Some(span)))
                 } else {
                     // todo: parse parameter
-                    Some(SelectorPart::PseudoClass {
-                        span,
-                        name: ident,
-                        parameter: None,
-                    })
+                    Some((
+                        SelectorPartType::PseudoClass {
+                            name: ident,
+                            parameter: None,
+                        },
+                        Some(span),
+                    ))
                 }
             } else {
                 current
@@ -225,7 +270,7 @@ where
             let result = parse_identifier(Some(current.span()), tokens);
             if let Some((ident, span)) = result {
                 let span = current.span().join(span).expect("In the same file");
-                Some(SelectorPart::Id { span, name: ident })
+                Some((SelectorPartType::Id { name: ident }, Some(span)))
             } else {
                 current
                     .span()
@@ -237,10 +282,10 @@ where
 
         TokenTree::Punct(ref punct) if punct.as_char() == '*' => {
             tokens.next();
-            Some(SelectorPart::Universal {
-                span: current.span(),
-                namespace: None,
-            })
+            Some((
+                SelectorPartType::Universal { namespace: None },
+                Some(current.span()),
+            ))
         }
         _ => {
             let result = parse_identifier(None, tokens);
@@ -248,18 +293,20 @@ where
                 let span = current.span().join(span).expect("In the same file");
                 // todo: css namespace support (e.g. `svg|a`, `|a`, `*|a`)
                 // ? check required: should we filter identifier by html-element-set?
-                Some(SelectorPart::Element {
-                    span: span,
-                    namespace: None,
-                    name: ident,
-                })
+                Some((
+                    SelectorPartType::Element {
+                        namespace: None,
+                        name: ident,
+                    },
+                    Some(span),
+                ))
             } else {
                 None
             }
         }
     }
     //? S = Q(CQ)*
-    //? C = + | > | ~
+    //? C = + | ~
     //? Q = (a|p|n)*
     //? a = '[' T ident (('^=' | '$=' | '*=' | '=' | '~=' | '|=') (ident | String))? ']'
     //? p = ':'{1,2} ident ('('expr')')?
