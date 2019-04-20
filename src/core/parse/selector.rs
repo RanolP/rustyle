@@ -12,11 +12,35 @@ where
     let mut tokens = read_tokens.into_iter().chain(tokens).peekable();
 
     let mut selectors = Vec::<Selector>::new();
+
+    while let Some(current) = tokens.peek().cloned() {
+        match current {
+            TokenTree::Group(ref group) if group.delimiter() == Delimiter::Brace => {
+                return Some((selectors, group.stream()));
+            }
+            TokenTree::Punct(ref punct) if punct.as_char() == ',' => {
+                tokens.next();
+            }
+            _ => {
+                if let Some(selector) = parse_selector(&mut tokens) {
+                    selectors.push(selector);
+                }
+            }
+        };
+    }
+
+    None
+}
+
+fn parse_selector<I>(tokens: &mut Peekable<I>) -> Option<Selector>
+where
+    I: Iterator<Item = TokenTree>,
+{
     let mut selector_parts = Vec::<SelectorPart>::new();
     let mut last_part_span: Option<Span> = None;
     let mut ignore_token = false;
 
-    let emit_part = |selector_parts: &mut Vec<SelectorPart>, selectors: &mut Vec<Selector>| {
+    let construct_selector = |selector_parts: Vec<SelectorPart>| {
         if !selector_parts.is_empty() {
             let filtered = selector_parts
                 .iter()
@@ -56,18 +80,19 @@ where
                 }
             }
 
-            selectors.push(Selector {
+            Some(Selector {
                 parts: selector_parts
                     .into_iter()
                     .rev()
-                    .skip_while(|part| **part == SelectorPart::Spacing)
+                    .skip_while(|part| *part == SelectorPart::Spacing)
                     .map(|part| part.clone())
                     .collect::<Vec<SelectorPart>>()
                     .into_iter()
                     .rev()
                     .collect::<Vec<SelectorPart>>(),
-            });
-            selector_parts.clear();
+            })
+        } else {
+            None
         }
     };
 
@@ -85,9 +110,7 @@ where
                     if let Some(last_part_span) = last_part_span {
                         last_part_span.error("Not parsable selectors").emit();
                     }
-                    last_part_span = None;
-                    selector_parts.clear();
-                    ignore_token = false;
+                    return None;
                 }
                 _ => {
                     last_part_span = last_part_span
@@ -101,16 +124,14 @@ where
             continue;
         }
         match current {
-            TokenTree::Group(ref group) if group.delimiter() == Delimiter::Brace => {
-                emit_part(&mut selector_parts, &mut selectors);
-                return Some((selectors, group.stream()));
+            TokenTree::Group(ref token) if token.delimiter() == Delimiter::Brace => {
+                return construct_selector(selector_parts);
             }
-            TokenTree::Punct(ref punct) if punct.as_char() == ',' => {
-                tokens.next();
-                emit_part(&mut selector_parts, &mut selectors);
+            TokenTree::Punct(ref token) if token.as_char() == ',' => {
+                return construct_selector(selector_parts);
             }
             _ => {
-                if let Some(result) = parse_selector_part(&current, &mut tokens) {
+                if let Some(result) = parse_selector_part(&current, tokens) {
                     if let Some(last_part_span) = last_part_span {
                         if let Some(span) = result.span() {
                             if last_part_span.end() != span.start() {
@@ -133,7 +154,7 @@ where
     None
 }
 
-pub fn parse_selector_part<I>(current: &TokenTree, tokens: &mut Peekable<I>) -> Option<SelectorPart>
+fn parse_selector_part<I>(current: &TokenTree, tokens: &mut Peekable<I>) -> Option<SelectorPart>
 where
     I: Iterator<Item = TokenTree>,
 {
