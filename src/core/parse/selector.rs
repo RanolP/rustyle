@@ -110,7 +110,7 @@ where
                 emit_part(&mut selector_parts, &mut selectors);
             }
             _ => {
-                if let Some(result) = parse_selector(&current, &mut tokens) {
+                if let Some(result) = parse_selector_part(&current, &mut tokens) {
                     if let Some(last_part_span) = last_part_span {
                         if let Some(span) = result.span() {
                             if last_part_span.end() != span.start() {
@@ -133,7 +133,7 @@ where
     None
 }
 
-pub fn parse_selector<I>(current: &TokenTree, tokens: &mut Peekable<I>) -> Option<SelectorPart>
+pub fn parse_selector_part<I>(current: &TokenTree, tokens: &mut Peekable<I>) -> Option<SelectorPart>
 where
     I: Iterator<Item = TokenTree>,
 {
