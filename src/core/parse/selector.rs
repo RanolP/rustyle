@@ -45,13 +45,6 @@ where
         let filters = {
             let mut map = HashMap::<&str, Box<dyn Fn(&&SelectorPart) -> bool>>::with_capacity(2);
             map.insert(
-                "pseudo class",
-                Box::new(|part| match part.0 {
-                    SelectorPartType::PseudoClass { .. } => true,
-                    _ => false,
-                }),
-            );
-            map.insert(
                 "pseudo element",
                 Box::new(|part| match part.0 {
                     SelectorPartType::PseudoElement { .. } => true,
@@ -245,7 +238,11 @@ where
             let result = parse_identifier(Some(current.span()), tokens);
             if let Some((ident, span)) = result {
                 let span = current.span().join(span).expect("In the same file");
-                if is_pseudo_element {
+                // ? :first-line, :first-letter, :before, and :after is pseudo element but looks like pseudo class
+                if is_pseudo_element
+                    || vec!["first-line", "first-letter", "before", "after"]
+                        .contains(&ident.as_str())
+                {
                     Some((SelectorPartType::PseudoElement { name: ident }, Some(span)))
                 } else {
                     // todo: parse parameter
@@ -305,9 +302,7 @@ where
             }
         }
     }
-    //? S = Q(CQ)*
-    //? C = + | ~
-    //? Q = (a|p|n)*
+    //? S = (a|p|n)*
     //? a = '[' T ident (('^=' | '$=' | '*=' | '=' | '~=' | '|=') (ident | String))? ']'
     //? p = ':'{1,2} ident ('('expr')')?
     //? n = ':not(' (t|u|h|c|a|p) ')'
