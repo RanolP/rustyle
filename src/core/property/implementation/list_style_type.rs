@@ -1,10 +1,9 @@
-use super::util;
 use crate::core::csstype::Cssifiable;
-use crate::core::property::{register_property, Property};
+use crate::core::property::{register_property, util, Property};
 
-pub struct ListStyleType;
+pub struct Instance;
 
-impl Property for ListStyleType {
+impl Property for Instance {
     fn register(&self) {
         self.register_keyword(vec![
             "disc",
@@ -23,7 +22,7 @@ impl Property for ListStyleType {
             "upper-alpha",
             "none",
         ]);
-        register_property(ListStyleType);
+        register_property(Instance);
     }
     fn name(&self) -> &str {
         "list-style-type"

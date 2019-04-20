@@ -1,10 +1,9 @@
-use super::util;
 use crate::core::csstype::Cssifiable;
-use crate::core::property::{register_property, Property};
+use crate::core::property::{register_property, util, Property};
 
-pub struct Display;
+pub struct Instance;
 
-impl Property for Display {
+impl Property for Instance {
     fn register(&self) {
         self.register_keyword(vec![
             "inline",
@@ -23,7 +22,7 @@ impl Property for Display {
             "table-caption",
             "none",
         ]);
-        register_property(Display);
+        register_property(Instance);
     }
     fn name(&self) -> &str {
         "display"

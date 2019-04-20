@@ -1,13 +1,12 @@
-use super::util;
 use crate::core::csstype::Cssifiable;
-use crate::core::property::{register_property, Property};
+use crate::core::property::{register_property, util, Property};
 
-pub struct BackgroundColor;
+pub struct Instance;
 
-impl Property for BackgroundColor {
+impl Property for Instance {
     fn register(&self) {
         self.register_keyword(vec!["transparent", "currentcolor"]);
-        register_property(BackgroundColor);
+        register_property(Instance);
     }
     fn name(&self) -> &str {
         "background-color"

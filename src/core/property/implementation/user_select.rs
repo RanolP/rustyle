@@ -1,9 +1,9 @@
-use crate::core::csstype::{CssKeyword, CssKeywordType, Cssifiable};
-use crate::core::property::{register_property, Property};
+use crate::core::csstype::Cssifiable;
+use crate::core::property::{register_property, util, Property};
 
-pub struct UserSelect;
+pub struct Instance;
 
-impl Property for UserSelect {
+impl Property for Instance {
     fn register(&self) {
         self.register_keyword(vec!["none", "auto", "text", "contain", "all"]);
 
@@ -12,25 +12,15 @@ impl Property for UserSelect {
         self.register_keyword_prefixed("-webkit-", vec!["none", "text", "all"]);
         self.register_keyword_prefixed("-ms-", vec!["none", "text", "element"]);
 
-        register_property(UserSelect);
+        register_property(Instance);
     }
     fn name(&self) -> &str {
         "user-select"
     }
 
     fn verify(&self, arg: &Box<dyn Cssifiable>) -> bool {
-        let arg = arg.as_any();
-        if let Some(arg) = arg.downcast_ref::<CssKeyword>() {
-            match arg {
-                CssKeyword {
-                    keyword_type: CssKeywordType::NotWide(s),
-                    ..
-                } => match s.as_str() {
-                    "none" | "auto" | "text" | "contain" | "all" | "element" => true,
-                    _ => false,
-                },
-                _ => true,
-            }
+        if let Some(arg) = util::as_keyword(arg) {
+            self.check_keyword(arg)
         } else {
             false
         }

@@ -5,11 +5,11 @@ pub struct Instance;
 
 impl Property for Instance {
     fn register(&self) {
-        self.register_keyword(vec!["ltr", "rtl"]);
+        self.register_keyword(vec!["normal", "sub", "super"]);
         register_property(Instance);
     }
     fn name(&self) -> &str {
-        "direction"
+        "font-variant-position"
     }
 
     fn verify(&self, arg: &Box<dyn Cssifiable>) -> bool {

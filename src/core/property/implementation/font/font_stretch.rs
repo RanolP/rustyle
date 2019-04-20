@@ -5,11 +5,21 @@ pub struct Instance;
 
 impl Property for Instance {
     fn register(&self) {
-        self.register_keyword(vec!["ltr", "rtl"]);
+        self.register_keyword(vec![
+            "normal",
+            "ultra-condensed",
+            "extra-condensed",
+            "condensed",
+            "semi-condensed",
+            "semi-expanded",
+            "expanded",
+            "extra-expanded",
+            "ultra-expanded",
+        ]);
         register_property(Instance);
     }
     fn name(&self) -> &str {
-        "direction"
+        "font-stretch"
     }
 
     fn verify(&self, arg: &Box<dyn Cssifiable>) -> bool {

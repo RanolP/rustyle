@@ -3,29 +3,26 @@ mod clear;
 mod color;
 mod direction;
 mod display;
+mod empty_cells;
+mod float;
+mod font;
 mod list_style_position;
 mod list_style_type;
 mod user_select;
 
-use super::util;
 use crate::core::property::Property;
 
-use background_color::*;
-use clear::*;
-use color::*;
-use direction::*;
-use display::*;
-use list_style_position::*;
-use list_style_type::*;
-use user_select::*;
-
 pub fn register_all_properties() {
-    BackgroundColor.register();
-    UserSelect.register();
-    Color.register();
-    ListStyleType.register();
-    ListStylePosition.register();
-    Clear.register();
-    Direction.register();
-    Display.register();
+    background_color::Instance.register();
+    user_select::Instance.register();
+    color::Instance.register();
+    list_style_type::Instance.register();
+    list_style_position::Instance.register();
+    clear::Instance.register();
+    direction::Instance.register();
+    display::Instance.register();
+    empty_cells::Instance.register();
+    float::Instance.register();
+
+    font::register_properties();
 }
