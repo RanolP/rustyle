@@ -6,6 +6,7 @@ mod metadata;
 mod root;
 mod ruleset;
 mod selector;
+mod unit;
 mod variable;
 
 pub use color::*;
@@ -16,4 +17,5 @@ pub use metadata::*;
 pub use root::*;
 pub use ruleset::*;
 pub use selector::*;
+pub use unit::*;
 pub use variable::*;

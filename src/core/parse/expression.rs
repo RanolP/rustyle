@@ -1,6 +1,6 @@
 use crate::core::csstype::Cssifiable;
 use crate::core::parse::{
-    parse_color_hex, parse_css_keyword, parse_css_wide_keyword, parse_variable,
+    parse_color_hex, parse_css_keyword, parse_css_wide_keyword, parse_unit, parse_variable,
 };
 use proc_macro::{Span, TokenTree};
 use std::iter::Peekable;
@@ -34,6 +34,6 @@ where
                 (None, Some(ident.span()))
             }
         }
-        _ => (None, None),
+        _ => parse_unit(tokens),
     }
 }
