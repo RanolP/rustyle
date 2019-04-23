@@ -6,6 +6,7 @@ fn main() {
     let red = "#c0ffee";
 
     let (test, test_file) = rustyle! {
+        min-height: 10.5rem;
         background-color: #00aabb;
 
         &:hover::first-letter *.head {

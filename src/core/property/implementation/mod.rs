@@ -8,6 +8,7 @@ mod float;
 mod font;
 mod list_style_position;
 mod list_style_type;
+mod min_height;
 mod user_select;
 
 use crate::core::property::Property;
@@ -23,6 +24,7 @@ pub fn register_all_properties() {
     display::Instance.register();
     empty_cells::Instance.register();
     float::Instance.register();
+    min_height::Instance.register();
 
     font::register_properties();
 }

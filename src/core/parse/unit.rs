@@ -1,4 +1,4 @@
-use crate::core::csstype::{Cssifiable, NumberUnit, PercentageUnit};
+use crate::core::csstype::{CssUnit, CssUnitGroup, Cssifiable};
 use crate::global::{UnitTree, UNIT_TREE};
 use proc_macro::{Span, TokenTree};
 use std::iter::Peekable;
@@ -19,8 +19,8 @@ where
                 return (None, Some(span));
             }
         } else {
-            let mut chars = stringified.chars().rev();
-            let mut ch = chars.next().expect("Token does not empty");
+            let mut chars = stringified.chars().rev().peekable();
+            let mut ch = *chars.peek().expect("Token does not empty");
 
             // Case 2. Ends with number means that not ends with unit.
             if ('0'..='9').contains(&ch) {
@@ -35,22 +35,30 @@ where
 
                 while {
                     if let Some(branch) = tree.children().get(&ch) {
+                        chars.next();
+                        unit.insert(0, ch);
                         tree = branch;
-                    }
 
-                    unit.insert(0, ch);
-
-                    if let Some(c) = chars.next() {
-                        ch = c;
-                        true
+                        if let Some(c) = chars.peek().cloned() {
+                            ch = c;
+                            true
+                        } else {
+                            false
+                        }
                     } else {
                         false
                     }
                 } {}
 
-                if let (Ok(number), UnitTree::Part { end: true, .. }) =
-                    (stringified.parse::<f64>(), tree)
-                {
+                if let (Ok(number), UnitTree::Part { end: true, .. }) = (
+                    chars
+                        .collect::<Vec<char>>()
+                        .into_iter()
+                        .rev()
+                        .collect::<String>()
+                        .parse::<f64>(),
+                    tree,
+                ) {
                     (stringified, number, Some(unit), span)
                 } else {
                     return (None, Some(span));
@@ -61,33 +69,54 @@ where
         return (None, None);
     };
 
-    let (origin, unit) = match tokens.peek() {
-        Some(TokenTree::Punct(ref punct)) if punct.as_char() == '%' => (
-            format!("{}{}", origin, punct.to_string()),
-            Some("%".to_string()),
-        ),
+    let (origin, unit) = match tokens.peek().cloned() {
+        Some(TokenTree::Punct(ref punct)) if punct.as_char() == '%' => {
+            tokens.next();
+            (
+                format!("{}{}", origin, punct.to_string()),
+                Some("%".to_string()),
+            )
+        }
         _ => (origin, unit),
     };
 
     if let Some(unit) = unit {
-        match unit.as_str() {
-            "%" => (
-                Some(Box::new(PercentageUnit {
-                    origin,
-                    val: number,
-                })),
-                Some(span),
-            ),
+        let group = match unit.to_lowercase().as_str() {
+            "%" => CssUnitGroup::Percentage,
+            "em" | "ex" | "cap" | "ch" | "ic" | "rem" | "lh" | "rlh" => {
+                CssUnitGroup::FontRelativeLength
+            }
+            "vw" | "vh" | "vi" | "vb" | "vmin" | "vmax" => CssUnitGroup::ViewportRelativeLength,
+            "cm" | "mm" | "q" | "in" | "pt" | "pc" | "px" => CssUnitGroup::AbsoluteLength,
+            "deg" | "grad" | "rad" | "turn" => CssUnitGroup::Angle,
+            "s" | "ms" => CssUnitGroup::Time,
+            "hz" | "khz" => CssUnitGroup::Frequency,
+            "dpi" | "dpcm" | "dppx" => CssUnitGroup::Resolution,
             _ => {
                 span.error(format!("Unit {} is not implemented", unit));
-                (None, Some(span))
+                return (None, Some(span));
             }
-        }
+        };
+        (
+            Some(Box::new(CssUnit {
+                group,
+                origin,
+                number,
+                unit,
+            })),
+            Some(span),
+        )
     } else {
         (
-            Some(Box::new(NumberUnit {
+            Some(Box::new(CssUnit {
+                group: if number.round() == number {
+                    CssUnitGroup::Integer
+                } else {
+                    CssUnitGroup::Number
+                },
                 origin,
-                val: number,
+                number,
+                unit: "".to_string(),
             })),
             Some(span),
         )

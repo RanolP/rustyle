@@ -6,6 +6,7 @@ use std::sync::{Arc, Mutex};
 
 pub type UnitTreeChildren = HashMap<char, UnitTree>;
 
+#[derive(Debug)]
 pub enum UnitTree {
     Root {
         children: UnitTreeChildren,
@@ -81,7 +82,24 @@ lazy_static! {
             )),
             'c' => UnitTree::mid(map!(
                 // ic: average character advance of a fullwidth glyph in the element’s font, as represented by the “水” (CJK water ideograph, U+6C34) glyph
-                'i' => UnitTree::end(map!())
+                'i' => UnitTree::end(map!()),
+                // pc: picas; 1pc = 1/6th of 1in
+                'p' => UnitTree::end(map!())
+            )),
+            'd' => UnitTree::mid(map!(
+                'a' => UnitTree::mid(map!(
+                    // rad: Radians. There are 2π radians in a full circle.
+                    'r' => UnitTree::end(map!(
+                        // grad: Gradians, also known as "gons" or "grades". There are 400 gradians in a full circle.
+                        'g' => UnitTree::end(map!())
+                    ))
+                ))
+            )),
+            'g' => UnitTree::mid(map!(
+                'e' => UnitTree::mid(map!(
+                    // deg: Degrees. There are 360 degrees in a full circle.
+                    'd' => UnitTree::end(map!())
+                ))
             )),
             'h' => UnitTree::mid(map!(
                 // ch: average character advance of a narrow glyph in the element’s font, as represented by the “0” (ZERO, U+0030) glyph
@@ -95,6 +113,10 @@ lazy_static! {
                 'v' => UnitTree::end(map!())
             )),
             'i' => UnitTree::mid(map!(
+                'p' => UnitTree::mid(map!(
+                    // dpi: Dots per inch.
+                    'd' => UnitTree::end(map!())
+                )),
                 // vi: 1% of viewport’s size in the root element’s inline axis
                 'v' => UnitTree::end(map!())
             )),
@@ -103,6 +125,25 @@ lazy_static! {
                 'e' => UnitTree::end(map!(
                     // rem: relative to font size of the root element
                     'r' => UnitTree::end(map!())
+                )),
+                // cm: centimeters; 1cm = 96px/2.54
+                'c' => UnitTree::end(map!(
+                    'p' => UnitTree::mid(map!(
+                        // dpcm: Dots per centimeter.
+                        'd' => UnitTree::end(map!())
+                    ))
+                )),
+                // mm: millimeters; 1mm = 1/10th of 1cm
+                'm' => UnitTree::end(map!())
+            )),
+            'n' => UnitTree::mid(map!(
+                // in: inches; 1in = 2.54cm = 96px
+                'i' => UnitTree::end(map!()),
+                'r' => UnitTree::mid(map!(
+                    'u' => UnitTree::mid(map!(
+                        // turn: Turns. There is 1 turn in a full circle.
+                        't' => UnitTree::end(map!())
+                    ))
                 ))
             )),
             'p' => UnitTree::mid(map!(
@@ -111,13 +152,39 @@ lazy_static! {
                     'c' => UnitTree::end(map!())
                 ))
             )),
+            // Q: quarter-millimeters; 1Q = 1/40th of 1cm
+            'q' => UnitTree::end(map!()),
+            // s: Seconds.
+            's' => UnitTree::end(map!(
+                // ms: Milliseconds. There are 1000 milliseconds in a second.
+                'm' => UnitTree::end(map!())
+            )),
+            't' => UnitTree::mid(map!(
+                // pt: points; 1pt = 1/72th of 1in
+                'p' => UnitTree::end(map!())
+            )),
             'x' => UnitTree::mid(map!(
                 // ex: x-height of the element’s font
-                'e' => UnitTree::end(map!())
+                'e' => UnitTree::end(map!()),
+                // px: pixels; 1px = 1/96th of 1in
+                'p' => UnitTree::end(map!(
+                    'p' => UnitTree::mid(map!(
+                        // dppx: Dots per px unit.
+                        'd' => UnitTree::end(map!())
+                    ))
+                ))
             )),
             'w' => UnitTree::mid(map!(
                 // vw: 1% of viewport’s width
                 'v' => UnitTree::end(map!())
+            )),
+            'z' => UnitTree::mid(map!(
+                // ? well, Hz and kHz is standard but not used by any property.
+                // Hz: Hertz. It represents the number of occurrences per second.
+                'h' => UnitTree::end(map!(
+                    // kHz: KiloHertz. A kiloHertz is 1000 Hertz.
+                    'k' => UnitTree::end(map!())
+                ))
             ))
         )
     };

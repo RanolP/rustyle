@@ -31,7 +31,7 @@ where
                 tokens.next();
                 (keyword, Some(ident.span()))
             } else {
-                (None, Some(ident.span()))
+                parse_unit(tokens)
             }
         }
         _ => parse_unit(tokens),
