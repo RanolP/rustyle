@@ -6,6 +6,8 @@ mod display;
 mod empty_cells;
 mod float;
 mod font;
+mod height;
+mod letter_spacing;
 mod list_style_position;
 mod list_style_type;
 mod min_height;
@@ -25,6 +27,8 @@ pub fn register_all_properties() {
     empty_cells::Instance.register();
     float::Instance.register();
     min_height::Instance.register();
+    letter_spacing::Instance.register();
+    height::Instance.register();
 
     font::register_properties();
 }

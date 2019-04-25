@@ -1,4 +1,5 @@
 mod font_kerning;
+mod font_size;
 mod font_stretch;
 mod font_style;
 mod font_variant_caps;
@@ -12,4 +13,5 @@ pub fn register_properties() {
     font_style::Instance.register();
     font_variant_caps::Instance.register();
     font_variant_position::Instance.register();
+    font_size::Instance.register();
 }
