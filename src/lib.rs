@@ -1,11 +1,10 @@
-/*!
-This crate provides the [`rustyle!`] macro that allows using CSS-in-Rust for Rust frontend application.
-This crate uses some experimental features, so you should use nightly toolchain to use this crate.
-
-Note: This crate absolutely unstable, I recommend you to don't use this crate on a production project.
-
-[`rustyle!`]: macro.rustyle.html
-*/
+//!
+//! This crate provides the [`rustyle!`] macro that allows using CSS-in-Rust for Rust frontend application.
+//! This crate uses some experimental features, so you should use nightly toolchain to use this crate.
+//!
+//! Note: This crate absolutely unstable, I recommend you to don't use this crate on a production project.
+//!
+//! [`rustyle!`]: macro.rustyle.html
 
 #![feature(proc_macro_diagnostic)]
 #![feature(proc_macro_span)]
