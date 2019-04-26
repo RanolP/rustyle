@@ -26,10 +26,7 @@ use proc_macro::{Span, TokenStream};
 /// Create a style class which contains the rusty css code.
 /// Returns the name of the class.
 ///
-/// ```no_run
-/// # #![feature(proc_macro_hygiene)]
-/// # use rustyle::css;
-///
+/// ```ignore
 /// let GlobalFile = css! {
 ///   #![inject_global]
 ///   body {
@@ -62,10 +59,7 @@ pub fn rustyle(input: TokenStream) -> TokenStream {
 ///
 /// [`rustyle!`]: macro.rustyle.html
 ///
-/// ```no_run
-/// # #![feature(proc_macro_hygiene)]
-/// # use rustyle::css;
-///
+/// ```ignore
 /// let (Button, ButtonFile) = css! {
 ///   border: 1px solid black;
 /// };
@@ -100,10 +94,7 @@ pub fn css_files(input: TokenStream) -> TokenStream {
 ///
 /// [`rustyle!`]: macro.rustyle.html
 ///
-/// ```no_run
-/// # #![feature(proc_macro_hygiene)]
-/// # use rustyle::{css, css_use};
-///
+/// ```ignore
 /// #[css_use]
 /// let (Parent, ParentFile) = css! {
 ///   color: red;
