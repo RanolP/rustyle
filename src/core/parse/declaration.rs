@@ -112,7 +112,8 @@ where
                             .expect("In the same file"),
                         prefix: prefix.to_string(),
                         name: name,
-                        value: expr,
+                        // todo: multiple expression support (e.g. border: 1px solid black)
+                        value: vec![expr],
                         metadatas: metadatas,
                     };
                     return Some(result);

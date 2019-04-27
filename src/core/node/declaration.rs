@@ -12,7 +12,7 @@ pub struct DeclarationNode {
     pub range: Span,
     pub prefix: String,
     pub name: String,
-    pub value: Box<dyn Cssifiable>,
+    pub value: Vec<Box<dyn Cssifiable>>,
     pub metadatas: Vec<MetadataNode>,
 }
 
@@ -60,7 +60,11 @@ impl Node for DeclarationNode {
                     self.range
                         .error(format!(
                             "Unacceptable data {} on {}{}",
-                            self.value.origin(),
+                            self.value
+                                .iter()
+                                .map(|value| value.origin())
+                                .collect::<Vec<String>>()
+                                .join(" "),
                             self.prefix,
                             self.name
                         ))
@@ -79,7 +83,11 @@ impl Node for DeclarationNode {
             "{prefix}{key}: {value};",
             prefix = self.prefix,
             key = self.name,
-            value = value.optimized_cssify()
+            value = value
+                .into_iter()
+                .map(|value| value.optimized_cssify())
+                .collect::<Vec<String>>()
+                .join(" ")
         );
     }
 }

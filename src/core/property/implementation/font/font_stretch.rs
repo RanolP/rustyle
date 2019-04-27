@@ -1,5 +1,4 @@
-use crate::core::csstype::Cssifiable;
-use crate::core::property::{register_property, util, Property};
+use crate::core::property::{register_property, util, Parameter, Property};
 
 pub struct Instance;
 
@@ -22,11 +21,9 @@ impl Property for Instance {
         "font-stretch"
     }
 
-    fn verify(&self, arg: &Box<dyn Cssifiable>) -> bool {
-        if let Some(arg) = util::as_keyword(arg) {
-            self.check_keyword(arg)
-        } else {
-            false
-        }
+    fn verify(&self, parameters: &Vec<Parameter>) -> bool {
+        util::when_size_1(parameters, |parameter| {
+            util::when_keyword(parameter, |parameter| self.check_keyword(parameter))
+        })
     }
 }

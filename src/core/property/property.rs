@@ -2,11 +2,13 @@ use crate::core::csstype::{CssKeyword, CssKeywordType, Cssifiable};
 use crate::global::{KEYWORDS, PROPERTIES};
 use std::collections::HashSet;
 
+pub type Parameter = Box<dyn Cssifiable>;
+
 pub trait Property: Send + Sync {
     fn register(&self);
 
     fn name(&self) -> &str;
-    fn verify(&self, arg: &Box<dyn Cssifiable>) -> bool;
+    fn verify(&self, parameters: &Vec<Parameter>) -> bool;
 
     fn register_keyword_prefixed(&self, prefix: &str, keywords: Vec<&str>) {
         let mut global_keywords = KEYWORDS.lock().unwrap();
