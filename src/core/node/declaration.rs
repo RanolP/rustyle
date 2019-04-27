@@ -84,7 +84,7 @@ impl Node for DeclarationNode {
             prefix = self.prefix,
             key = self.name,
             value = value
-                .into_iter()
+                .iter()
                 .map(|value| value.optimized_cssify())
                 .collect::<Vec<String>>()
                 .join(" ")
