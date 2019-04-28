@@ -3,6 +3,7 @@
 ![rust-nightly](https://img.shields.io/badge/rust-nightly-important.svg)
 [![Travis](https://img.shields.io/travis/com/RanolP/rustyle.svg)](https://travis-ci.com/RanolP/rustyle)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/RanolP/rustyle.svg)
+![Codecov coverage status](https://img.shields.io/codecov/c/github/RanolP/rustyle.svg)
 ![crates.io version](https://img.shields.io/crates/v/rustyle.svg)
 ![crates.io downloads](https://img.shields.io/crates/d/rustyle.svg)
 ![crates.io license](https://img.shields.io/crates/l/rustyle.svg)
