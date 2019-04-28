@@ -33,3 +33,11 @@ after_success: |
   for file in target/debug/rustyle-*; do [ -x "${file}" ] || continue; mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done &&
   bash <(curl -s https://codecov.io/bash) &&
   echo "Uploaded code coverage"
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/c598d780c3767df74f9d
+    on_success: change
+    on_failure: always
+    on_start: never
