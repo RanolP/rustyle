@@ -10,6 +10,12 @@ pub struct RgbColor {
     pub alpha: u8,
 }
 
+impl PartialEq for RgbColor {
+    fn eq(&self, other: &Self) -> bool {
+        self.red == other.red && self.green == other.green && self.blue == other.blue && self.alpha == other.alpha
+    }
+}
+
 impl Color for RgbColor {
     fn origin(&self) -> String {
         self.origin.clone()
@@ -74,6 +80,7 @@ impl Color for RgbColor {
     }
 }
 
+#[derive(Debug, PartialEq)]
 pub enum ColorParseError {
     StringEmpty,
     NotAHexColor,
