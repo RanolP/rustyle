@@ -1,4 +1,4 @@
-use super::{Color, RgbColor};
+use crate::{Color, RgbColor};
 
 #[derive(Debug)]
 pub struct HslColor {

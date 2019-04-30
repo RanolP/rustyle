@@ -1,5 +1,5 @@
-use crate::core::csstype::{CssKeyword, Cssifiable};
 use crate::global::KEYWORDS;
+use csstype::{CssKeyword, Cssifiable};
 use proc_macro::Ident;
 
 pub fn parse_css_wide_keyword(ident: &Ident) -> Option<Box<dyn Cssifiable>> {

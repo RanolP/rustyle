@@ -1,4 +1,4 @@
-use super::{Color, HslColor};
+use crate::{Color, HslColor};
 use std::cmp::Ordering::Equal;
 
 #[derive(Debug)]

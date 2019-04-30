@@ -1,4 +1,4 @@
-use crate::core::csstype::Cssifiable;
+use super::Cssifiable;
 
 #[derive(Debug, PartialEq)]
 pub enum CssUnitGroup {

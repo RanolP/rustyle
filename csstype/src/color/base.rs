@@ -1,5 +1,5 @@
-use crate::core::csstype::Cssifiable;
-use crate::core::csstype::{HslColor, RgbColor};
+use crate::Cssifiable;
+use crate::{HslColor, RgbColor};
 use std::fmt::Debug;
 
 pub trait Color: Debug {

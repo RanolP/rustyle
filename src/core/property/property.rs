@@ -1,5 +1,5 @@
-use crate::core::csstype::{CssKeyword, CssKeywordType, Cssifiable};
 use crate::global::{KEYWORDS, PROPERTIES};
+use csstype::{CssKeyword, CssKeywordType, Cssifiable};
 use std::collections::HashSet;
 
 pub type Parameter = Box<dyn Cssifiable>;

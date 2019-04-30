@@ -1,4 +1,4 @@
-use crate::core::csstype::{ColorParseError, Cssifiable, RgbColor};
+use csstype::{ColorParseError, Cssifiable, RgbColor};
 use proc_macro::{Span, TokenTree};
 
 pub fn parse_color_hex<I>(

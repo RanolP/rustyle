@@ -1,5 +1,5 @@
-use crate::core::csstype::{CssUnit, CssUnitGroup, Cssifiable};
 use crate::global::{UnitTree, UNIT_TREE};
+use csstype::{CssUnit, CssUnitGroup, Cssifiable};
 use proc_macro::{Span, TokenTree};
 use std::iter::Peekable;
 

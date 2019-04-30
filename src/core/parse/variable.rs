@@ -1,5 +1,5 @@
-use crate::core::csstype::Cssifiable;
 use crate::core::parse::parse_expression;
+use csstype::Cssifiable;
 use proc_macro::{Delimiter, Span, TokenTree};
 
 pub fn parse_variable<I>(

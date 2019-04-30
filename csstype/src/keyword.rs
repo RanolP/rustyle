@@ -1,4 +1,4 @@
-use crate::core::csstype::Cssifiable;
+use super::Cssifiable;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum CssKeywordType {

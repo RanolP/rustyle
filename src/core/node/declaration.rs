@@ -1,9 +1,9 @@
 use super::Node;
 use crate::core::compile_context::CompileContext;
-use crate::core::csstype::Cssifiable;
 use crate::core::metadata::RuleMetadataProcessor;
 use crate::core::node::MetadataNode;
 use crate::global::{PROPERTIES, RULE_METADATA_PROCESSORS};
+use csstype::Cssifiable;
 use proc_macro::Span;
 use std::collections::HashMap;
 

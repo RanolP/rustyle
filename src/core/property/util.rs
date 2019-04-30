@@ -1,5 +1,5 @@
 use super::Parameter;
-use crate::core::csstype::{Color, CssKeyword, CssUnit, CssUnitGroup, HslColor, RgbColor};
+use csstype::{Color, CssKeyword, CssUnit, CssUnitGroup, HslColor, RgbColor};
 
 #[allow(unused)]
 pub fn as_color(arg: &Parameter) -> Option<&dyn Color> {

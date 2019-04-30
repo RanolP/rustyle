@@ -1,0 +1,7 @@
+[package]
+name = "csstype"
+version = "0.1.0"
+authors = ["RanolP <public.ranolp@gmail.com>"]
+edition = "2018"
+
+[dependencies]

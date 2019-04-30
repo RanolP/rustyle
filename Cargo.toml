@@ -19,3 +19,4 @@ lazy_static = "1.3.0"
 quote = "0.6.12"
 fasthash = "0.4.0"
 proc-macro2="0.4.29"
+csstype= { path="./csstype" }
