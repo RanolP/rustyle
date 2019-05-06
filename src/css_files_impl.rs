@@ -1,5 +1,5 @@
-use crate::global::CSS_FILES_MAP;
 use proc_macro2::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
+use runtime::global::CSS_FILES_MAP;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 

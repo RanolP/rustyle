@@ -1,6 +1,6 @@
 use super::Cssifiable;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum CssUnitGroup {
     Integer,
     Number,

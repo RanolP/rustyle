@@ -9,11 +9,11 @@ mod selector;
 mod unit;
 mod variable;
 
+pub use self::metadata::*;
 pub use color::*;
 pub use declaration::*;
 pub use expression::*;
 pub use keyword::*;
-pub use metadata::*;
 pub use root::*;
 pub use ruleset::*;
 pub use selector::*;

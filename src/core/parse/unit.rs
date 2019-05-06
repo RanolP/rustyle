@@ -1,6 +1,6 @@
-use crate::global::{UnitTree, UNIT_TREE};
 use csstype::{CssUnit, CssUnitGroup, Cssifiable};
 use proc_macro::{Span, TokenTree};
+use runtime::global::{UnitTree, UNIT_TREE};
 use std::iter::Peekable;
 
 pub fn parse_unit<I>(tokens: &mut Peekable<I>) -> (Option<Box<dyn Cssifiable>>, Option<Span>)

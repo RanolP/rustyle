@@ -1,6 +1,6 @@
-use crate::global::KEYWORDS;
 use csstype::{CssKeyword, Cssifiable};
 use proc_macro::Ident;
+use runtime::global::KEYWORDS;
 
 pub fn parse_css_wide_keyword(ident: &Ident) -> Option<Box<dyn Cssifiable>> {
     let ident_str = ident.to_string();

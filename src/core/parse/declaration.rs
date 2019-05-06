@@ -1,7 +1,7 @@
-use crate::core::node::{DeclarationNode, MetadataNode};
 use crate::core::parse::parse_expression;
-use crate::global::VENDOR_PREFIXES;
+use node::{DeclarationNode, MetadataNode};
 use proc_macro::{Span, TokenTree};
+use runtime::global::VENDOR_PREFIXES;
 use std::iter::Peekable;
 
 pub fn parse_declaration<I: 'static>(

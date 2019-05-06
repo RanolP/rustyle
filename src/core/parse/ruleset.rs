@@ -1,7 +1,7 @@
-use crate::core::node::{
+use crate::core::parse::{parse_declaration, parse_metadata, parse_selector_group};
+use node::{
     DeclarationNode, MetadataNode, MetadataType, RulesetNode, RulesetType, Selector, SelectorGroup,
 };
-use crate::core::parse::{parse_declaration, parse_metadata, parse_selector_group};
 use proc_macro::{Delimiter, TokenTree};
 use std::iter::Peekable;
 

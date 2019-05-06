@@ -1,0 +1,11 @@
+[package]
+name = "runtime"
+version = "0.1.0"
+authors = ["RanolP <public.ranolp@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+lazy_static = "1.3.0"
+metadata = { path = "../metadata" }
+runtime_facade = { path = "../runtime_facade" }
+property = { path = "../property" }

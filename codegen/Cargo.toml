@@ -1,0 +1,13 @@
+[package]
+name = "codegen"
+version = "0.1.0"
+authors = ["RanolP <public.ranolp@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+metadata = { path = "../metadata" }
+node = { path = "../node" }
+runtime = { path = "../runtime" }
+property = { path = "../property" }
+csstype = { path = "../csstype" }
+runtime_facade = { path = "../runtime_facade" }

@@ -1,4 +1,4 @@
-use crate::core::node::{Selector, SelectorGroup, SelectorPart, SelectorPartType};
+use node::{Selector, SelectorGroup, SelectorPart, SelectorPartType};
 use proc_macro::{Delimiter, Span, TokenStream, TokenTree};
 
 use std::collections::HashMap;

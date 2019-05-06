@@ -18,7 +18,6 @@ extern crate proc_macro;
 mod core;
 mod css_files_impl;
 mod css_use_impl;
-mod global;
 mod rustyle_impl;
 
 use proc_macro::{Span, TokenStream};

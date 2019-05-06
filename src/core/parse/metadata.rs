@@ -1,4 +1,4 @@
-use crate::core::node::{MetadataNode, MetadataType};
+use node::{MetadataNode, MetadataType};
 use proc_macro::{Delimiter, TokenTree};
 use std::iter::Peekable;
 
