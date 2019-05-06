@@ -1,11 +1,10 @@
-
+use crate::CodeGenerator;
 use metadata::RootMetadataProcessor;
-use runtime_facade::CompileContext;
+use node::{DeclarationNode, MetadataNode, RulesetNode, RulesetType};
 use runtime::global::ROOT_METADATA_PROCESSORS;
+use runtime_facade::CompileContext;
 use std::collections::HashMap;
 use std::slice::SliceConcatExt;
-use node::{RulesetNode, RulesetType, MetadataNode, DeclarationNode};
-use crate::CodeGenerator;
 
 impl CodeGenerator for RulesetNode {
     fn generate_code(&self, base_class: &str, context: &mut CompileContext) -> String {

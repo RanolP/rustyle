@@ -12,7 +12,10 @@ pub struct RgbColor {
 
 impl PartialEq for RgbColor {
     fn eq(&self, other: &Self) -> bool {
-        self.red == other.red && self.green == other.green && self.blue == other.blue && self.alpha == other.alpha
+        self.red == other.red
+            && self.green == other.green
+            && self.blue == other.blue
+            && self.alpha == other.alpha
     }
 }
 

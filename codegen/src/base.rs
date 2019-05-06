@@ -1,6 +1,6 @@
-use runtime::CompileContext;
 use node::Node;
 use proc_macro::Span;
+use runtime::CompileContext;
 
 pub trait CodeGenerator: Node {
     fn generate_code(&self, base_class: &str, _: &mut CompileContext) -> String {

@@ -23,7 +23,9 @@ pub trait MetadataRegisterer {
 }
 
 pub fn register_all_metadatas<R>(registerer: &R)
-    where R: MetadataRegisterer {
+where
+    R: MetadataRegisterer,
+{
     rule::register_rule_metadatas(registerer);
     root::register_root_metadatas(registerer);
 }

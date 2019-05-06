@@ -1,6 +1,6 @@
+use lazy_static::lazy_static;
 use metadata::{RootMetadataProcessor, RuleMetadataProcessor};
 use property::Property;
-use lazy_static::lazy_static;
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
 

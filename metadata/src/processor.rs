@@ -1,5 +1,5 @@
-use runtime_facade::CompileContext;
 use node::{DeclarationNode, MetadataNode};
+use runtime_facade::CompileContext;
 use std::fmt::Debug;
 
 pub trait RuleMetadataProcessor: Sync + Send + Debug {

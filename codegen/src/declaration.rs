@@ -1,11 +1,11 @@
-use runtime::CompileContext;
-use metadata::RuleMetadataProcessor;
-use node::{MetadataNode, DeclarationNode};
-use runtime::global::{PROPERTIES, RULE_METADATA_PROCESSORS, KEYWORDS};
-use std::collections::HashMap;
-use property::ConditionType;
 use crate::CodeGenerator;
-use csstype::{RgbColor, HslColor, CssUnit, Cssifiable, CssKeyword, CssKeywordType};
+use csstype::{CssKeyword, CssKeywordType, CssUnit, Cssifiable, HslColor, RgbColor};
+use metadata::RuleMetadataProcessor;
+use node::{DeclarationNode, MetadataNode};
+use property::ConditionType;
+use runtime::global::{KEYWORDS, PROPERTIES, RULE_METADATA_PROCESSORS};
+use runtime::CompileContext;
+use std::collections::HashMap;
 
 impl CodeGenerator for DeclarationNode {
     fn generate_code(&self, _: &str, _: &mut CompileContext) -> String {
@@ -42,11 +42,11 @@ impl CodeGenerator for DeclarationNode {
             Some(property) => {
                 let condition = property.condition();
                 let join_value = |value: &Vec<Box<dyn Cssifiable>>| {
-                            value
-                                .iter()
-                                .map(|value| value.origin())
-                                .collect::<Vec<String>>()
-                                .join(" ")
+                    value
+                        .iter()
+                        .map(|value| value.origin())
+                        .collect::<Vec<String>>()
+                        .join(" ")
                 };
                 if self.value.len() != condition.len() {
                     self.range
@@ -59,22 +59,40 @@ impl CodeGenerator for DeclarationNode {
                 } else {
                     for (condition, value) in condition.into_iter().zip((&self.value).into_iter()) {
                         let any = value.as_any();
-                        if (any.is::<HslColor>() || any.is::<RgbColor>()) && condition.types_variant.contains(&ConditionType::Color) {
+                        if (any.is::<HslColor>() || any.is::<RgbColor>())
+                            && condition.types_variant.contains(&ConditionType::Color)
+                        {
                             continue;
                         }
                         if let Some(keyword) = any.downcast_ref::<CssKeyword>() {
                             if condition.types_variant.contains(&ConditionType::Keyword) {
-                            match &keyword.keyword_type {
-                                CssKeywordType::NotWide(s) => {
-                                    if keywords.get(s).map(|set| set.contains(&format!("{}{}", self.prefix, self.name))).unwrap_or(false) {
+                                match &keyword.keyword_type {
+                                    CssKeywordType::NotWide(s) => {
+                                        if keywords
+                                            .get(s)
+                                            .map(|set| {
+                                                set.contains(&format!(
+                                                    "{}{}",
+                                                    self.prefix, self.name
+                                                ))
+                                            })
+                                            .unwrap_or(false)
+                                        {
+                                            continue;
+                                        } else {
+                                            self.range
+                                                .error(format!(
+                                                    "Unacceptable keyword `{}` on {}{}`",
+                                                    s, self.prefix, self.name
+                                                ))
+                                                .emit();
+                                            break;
+                                        }
+                                    }
+                                    _ => {
                                         continue;
-                                    } else {
-                                        self.range.error(format!("Unacceptable keyword `{}` on {}{}`", s, self.prefix, self.name)).emit();
-                                        break;
                                     }
                                 }
-                                ,_ => {continue;}
-                            }
                             }
                         }
                         if let Some(unit) = any.downcast_ref::<CssUnit>() {
@@ -89,14 +107,14 @@ impl CodeGenerator for DeclarationNode {
                             }
                         }
 
-                    self.range
-                        .error(format!(
-                            "Unacceptable data `{}` on `{}{}`",
-                            join_value(&self.value),
-                            self.prefix,
-                            self.name
-                        ))
-                        .emit();
+                        self.range
+                            .error(format!(
+                                "Unacceptable data `{}` on `{}{}`",
+                                join_value(&self.value),
+                                self.prefix,
+                                self.name
+                            ))
+                            .emit();
                         break;
                     }
                 }
