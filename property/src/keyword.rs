@@ -5,25 +5,25 @@ pub struct Keyword {
 }
 
 impl Keyword {
-    pub fn Simple(name: &str) -> Keyword {
+    pub fn simple(name: &str) -> Keyword {
         Keyword {
             vendor_prefix: "".to_string(),
             name: name.to_string(),
         }
     }
-    pub fn SimpleVec(names: Vec<&str>) -> Vec<Keyword> {
-        names.into_iter().map(Keyword::Simple).collect()
+    pub fn simple_vec(names: Vec<&str>) -> Vec<Keyword> {
+        names.into_iter().map(Keyword::simple).collect()
     }
-    pub fn Prefixed(vendor_prefix: &str, name: &str) -> Keyword {
+    pub fn prefixed(vendor_prefix: &str, name: &str) -> Keyword {
         Keyword {
             vendor_prefix: vendor_prefix.to_string(),
             name: name.to_string(),
         }
     }
-    pub fn PrefixedVec(vendor_prefix: &str, names: Vec<&str>) -> Vec<Keyword> {
+    pub fn prefixed_vec(vendor_prefix: &str, names: Vec<&str>) -> Vec<Keyword> {
         names
             .into_iter()
-            .map(|name| Keyword::Prefixed(vendor_prefix, name))
+            .map(|name| Keyword::prefixed(vendor_prefix, name))
             .collect()
     }
 }

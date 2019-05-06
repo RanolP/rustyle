@@ -5,7 +5,7 @@ pub struct Instance;
 
 impl Property for Instance {
     fn keywords(&self) -> Vec<Keyword> {
-        Keyword::SimpleVec(vec![
+        Keyword::simple_vec(vec![
             "normal",
             "small-caps",
             "all-small-caps",
@@ -20,6 +20,6 @@ impl Property for Instance {
     }
 
     fn condition(&self) -> Vec<Condition> {
-        vec![Condition::Keyword()]
+        vec![Condition::keyword()]
     }
 }

@@ -5,15 +5,15 @@ pub struct Instance;
 
 impl Property for Instance {
     fn keywords(&self) -> Vec<Keyword> {
-        Keyword::SimpleVec(vec!["auto"])
+        Keyword::simple_vec(vec!["auto"])
     }
     fn name(&self) -> &str {
         "height"
     }
 
     fn condition(&self) -> Vec<Condition> {
-        vec![Condition::Keyword()
-            .or(Condition::LengthUnit())
-            .or(Condition::PercentageUnit())]
+        vec![Condition::keyword()
+            .or(Condition::length_unit())
+            .or(Condition::percentage_unit())]
     }
 }

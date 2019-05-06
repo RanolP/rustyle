@@ -7,11 +7,11 @@ impl Property for Instance {
     fn keywords(&self) -> Vec<Keyword> {
         [
             // absolute size
-            Keyword::SimpleVec(vec![
+            Keyword::simple_vec(vec![
                 "xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large",
             ]),
             // relative size
-            Keyword::SimpleVec(vec!["larger", "smaller"]),
+            Keyword::simple_vec(vec!["larger", "smaller"]),
         ]
         .concat()
     }
@@ -20,8 +20,8 @@ impl Property for Instance {
     }
 
     fn condition(&self) -> Vec<Condition> {
-        vec![Condition::Keyword()
-            .or(Condition::LengthUnit())
-            .or(Condition::PercentageUnit())]
+        vec![Condition::keyword()
+            .or(Condition::length_unit())
+            .or(Condition::percentage_unit())]
     }
 }

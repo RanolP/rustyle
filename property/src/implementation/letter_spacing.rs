@@ -5,13 +5,13 @@ pub struct Instance;
 
 impl Property for Instance {
     fn keywords(&self) -> Vec<Keyword> {
-        Keyword::SimpleVec(vec!["normal"])
+        Keyword::simple_vec(vec!["normal"])
     }
     fn name(&self) -> &str {
         "letter-spacing"
     }
 
     fn condition(&self) -> Vec<Condition> {
-        vec![Condition::Keyword().or(Condition::LengthUnit())]
+        vec![Condition::keyword().or(Condition::length_unit())]
     }
 }

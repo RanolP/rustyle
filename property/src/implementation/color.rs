@@ -9,6 +9,6 @@ impl Property for Instance {
     }
 
     fn condition(&self) -> Vec<Condition> {
-        vec![Condition::Keyword().or(Condition::Color())]
+        vec![Condition::keyword().or(Condition::color())]
     }
 }

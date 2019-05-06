@@ -9,8 +9,8 @@ impl Property for Instance {
     }
 
     fn condition(&self) -> Vec<Condition> {
-        vec![Condition::Keyword()
-            .or(Condition::LengthUnit())
-            .or(Condition::PercentageUnit())]
+        vec![Condition::keyword()
+            .or(Condition::length_unit())
+            .or(Condition::percentage_unit())]
     }
 }

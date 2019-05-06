@@ -20,13 +20,13 @@ pub struct Condition {
 }
 
 impl Condition {
-    pub fn Keyword() -> Condition {
+    pub fn keyword() -> Condition {
         ConditionType::Keyword.as_condition()
     }
-    pub fn Color() -> Condition {
+    pub fn color() -> Condition {
         ConditionType::Color.as_condition()
     }
-    pub fn LengthUnit() -> Condition {
+    pub fn length_unit() -> Condition {
         ConditionType::Unit(vec![
             CssUnitGroup::Integer,
             CssUnitGroup::Number,
@@ -36,7 +36,7 @@ impl Condition {
         ])
         .as_condition()
     }
-    pub fn PercentageUnit() -> Condition {
+    pub fn percentage_unit() -> Condition {
         ConditionType::Unit(vec![CssUnitGroup::Percentage]).as_condition()
     }
     pub fn or(self, cond: Condition) -> Self {

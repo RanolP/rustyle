@@ -6,11 +6,11 @@ pub struct Instance;
 impl Property for Instance {
     fn keywords(&self) -> Vec<Keyword> {
         [
-            Keyword::SimpleVec(vec!["none", "auto", "text", "contain", "all"]),
-            Keyword::PrefixedVec("-moz-", vec!["none", "text", "all"]),
+            Keyword::simple_vec(vec!["none", "auto", "text", "contain", "all"]),
+            Keyword::prefixed_vec("-moz-", vec!["none", "text", "all"]),
             // "all" Doesn't work in Safari; use only "none" or "text", or else it will allow typing in the <html> container
-            Keyword::PrefixedVec("-webkit-", vec!["none", "text", "all"]),
-            Keyword::PrefixedVec("-ms-", vec!["none", "text", "element"]),
+            Keyword::prefixed_vec("-webkit-", vec!["none", "text", "all"]),
+            Keyword::prefixed_vec("-ms-", vec!["none", "text", "element"]),
         ]
         .concat()
     }
@@ -19,6 +19,6 @@ impl Property for Instance {
     }
 
     fn condition(&self) -> Vec<Condition> {
-        vec![Condition::Keyword()]
+        vec![Condition::keyword()]
     }
 }

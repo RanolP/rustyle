@@ -5,7 +5,7 @@ use runtime::global::{PROPERTIES, RULE_METADATA_PROCESSORS, KEYWORDS};
 use std::collections::HashMap;
 use property::ConditionType;
 use crate::CodeGenerator;
-use csstype::{RgbColor, HslColor, CssUnitGroup, CssUnit, Cssifiable, CssKeyword, CssKeywordType};
+use csstype::{RgbColor, HslColor, CssUnit, Cssifiable, CssKeyword, CssKeywordType};
 
 impl CodeGenerator for DeclarationNode {
     fn generate_code(&self, _: &str, _: &mut CompileContext) -> String {
