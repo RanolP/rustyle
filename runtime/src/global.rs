@@ -189,6 +189,8 @@ lazy_static! {
         )
     };
 
+    pub static ref KNOWN_PSEUDO_CLASSES: Vec<&'static str> = vec![];
+    pub static ref KNOWN_PSEUDO_ELEMENTS: Vec<&'static str> = vec![];
     // Listed at https://stackoverflow.com/questions/5411026/list-of-css-vendor-prefixes
     pub static ref VENDOR_PREFIXES: Vec<&'static str> = vec![
         "-ms-",     // Microsoft

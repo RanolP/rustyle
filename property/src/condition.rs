@@ -5,6 +5,7 @@ pub enum ConditionType {
     Keyword,
     Color,
     Unit(Vec<CssUnitGroup>),
+    ValueAllocatedUnit(CssUnitGroup, f32),
 }
 
 impl ConditionType {
@@ -38,6 +39,12 @@ impl Condition {
     }
     pub fn percentage_unit() -> Condition {
         ConditionType::Unit(vec![CssUnitGroup::Percentage]).as_condition()
+    }
+    pub fn integer_exact(number: i32) -> Condition {
+        ConditionType::ValueAllocatedUnit(CssUnitGroup::Integer, number as f32).as_condition()
+    }
+    pub fn number_exact(number: f32) -> Condition {
+        ConditionType::ValueAllocatedUnit(CssUnitGroup::Number, number).as_condition()
     }
     pub fn or(self, cond: Condition) -> Self {
         Condition {
