@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Create a report to help us improve
+about: Share a bug to us to fixing issues
 title: 'bug: '
 labels: "❣️ Priority: High, \U0001F197 Status: Available, \U0001F41B Type: Bug"
 assignees: ''
