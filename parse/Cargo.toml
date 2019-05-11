@@ -1,0 +1,15 @@
+[package]
+name = "parse"
+version = "0.1.0"
+authors = ["RanolP <public.ranolp@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+quote = "0.6.12"
+codegen = { path = "../codegen" }
+csstype = { path = "../csstype" }
+metadata = { path = "../metadata" }
+node = { path = "../node" }
+runtime = { path = "../runtime" }
+property = { path = "../property" }
+runtime_facade = { path = "../runtime_facade" }

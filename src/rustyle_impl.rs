@@ -1,6 +1,6 @@
 use crate::core::name_mangler::mangle;
-use crate::core::parse::parse_rustyle;
 use codegen::CodeGenerator;
+use parse::parse_rustyle;
 use proc_macro::{Span, TokenStream};
 use quote::quote;
 use runtime::global::{CSS_FILES_MAP, CSS_ID, OUTPUT};

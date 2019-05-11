@@ -1,4 +1,4 @@
-use crate::core::parse::parse_expression;
+use crate::parse_expression;
 use node::{DeclarationNode, MetadataNode};
 use proc_macro::{Span, TokenTree};
 use runtime::global::VENDOR_PREFIXES;

@@ -18,11 +18,12 @@ proc-macro = true
 lazy_static = "1.3.0"
 quote = "0.6.12"
 fasthash = "0.4.0"
-proc-macro2 = "0.4.29"
-codegen = { path = './codegen' }
+proc-macro2 = "0.4.30"
+codegen = { path = "./codegen" }
 csstype = { path = "./csstype" }
 metadata = { path = "./metadata" }
 node = { path = "./node" }
-runtime = { path = './runtime' }
-property = { path = './property' }
-runtime_facade = { path = './runtime_facade' }
+runtime = { path = "./runtime" }
+property = { path = "./property" }
+runtime_facade = { path = "./runtime_facade" }
+parse = { path = "./parse" }

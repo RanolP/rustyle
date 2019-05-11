@@ -5,4 +5,4 @@ authors = ["RanolP <public.ranolp@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-csstype = { path = '../csstype' }
+csstype = { path = "../csstype" }

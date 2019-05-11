@@ -1,4 +1,4 @@
-use crate::core::parse::ruleset::parse_ruleset;
+use crate::parse_ruleset;
 use ::metadata::{
     register_all_metadatas, MetadataRegisterer, RootMetadataProcessor, RuleMetadataProcessor,
 };

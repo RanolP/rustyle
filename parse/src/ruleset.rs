@@ -1,4 +1,4 @@
-use crate::core::parse::{parse_declaration, parse_metadata, parse_selector_group};
+use crate::{parse_declaration, parse_metadata, parse_selector_group};
 use node::{
     DeclarationNode, MetadataNode, MetadataType, RulesetNode, RulesetType, Selector, SelectorGroup,
 };
