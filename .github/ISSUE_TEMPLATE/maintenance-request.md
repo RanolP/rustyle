@@ -1,8 +1,8 @@
 ---
 name: Maintenance Request
 about: Request us to fix phrase, word, etc.
-title: 'feat: '
-labels: "\U0001F197 Status: Available, \U0001F4DC Type: Maintenance"
+title: 'chore: '
+labels: "\U0001F49A Priority: Low, \U0001F197 Status: Available, \U0001F4DC Type: Maintenance"
 assignees: ''
 
 ---
