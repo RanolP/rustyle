@@ -7,10 +7,6 @@ pub enum ParameterType {
     Over,
 }
 
-trait Plural {
-    fn pluralize(&self, unit: &str) -> String;
-}
-
 fn pluralize(i: u32, unit: &str) -> String {
     match i {
         0 => format!("no {}s", unit),
