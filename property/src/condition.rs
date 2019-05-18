@@ -9,7 +9,7 @@ pub enum ConditionType {
 }
 
 impl ConditionType {
-    fn as_condition(self) -> Condition {
+    fn into_condition(self) -> Condition {
         Condition {
             types_variant: vec![self],
         }
@@ -22,10 +22,10 @@ pub struct Condition {
 
 impl Condition {
     pub fn keyword() -> Condition {
-        ConditionType::Keyword.as_condition()
+        ConditionType::Keyword.into_condition()
     }
     pub fn color() -> Condition {
-        ConditionType::Color.as_condition()
+        ConditionType::Color.into_condition()
     }
     pub fn length_unit() -> Condition {
         ConditionType::Unit(vec![
@@ -35,16 +35,16 @@ impl Condition {
             CssUnitGroup::FontRelativeLength,
             CssUnitGroup::ViewportRelativeLength,
         ])
-        .as_condition()
+        .into_condition()
     }
     pub fn percentage_unit() -> Condition {
-        ConditionType::Unit(vec![CssUnitGroup::Percentage]).as_condition()
+        ConditionType::Unit(vec![CssUnitGroup::Percentage]).into_condition()
     }
     pub fn integer_exact(number: i32) -> Condition {
-        ConditionType::ValueAllocatedUnit(CssUnitGroup::Integer, number as f32).as_condition()
+        ConditionType::ValueAllocatedUnit(CssUnitGroup::Integer, number as f32).into_condition()
     }
     pub fn number_exact(number: f32) -> Condition {
-        ConditionType::ValueAllocatedUnit(CssUnitGroup::Number, number).as_condition()
+        ConditionType::ValueAllocatedUnit(CssUnitGroup::Number, number).into_condition()
     }
     pub fn or(self, cond: Condition) -> Self {
         Condition {
