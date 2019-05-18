@@ -1,15 +1,24 @@
 use crate::{Color, HslColor};
 use std::cmp::Ordering::Equal;
 
+/// CSS [`Color`] which stores color by RGB system.
+///
+/// [`Color`]: crate::color::Color
 #[derive(Debug)]
 pub struct RgbColor {
+    /// Original text.
     pub origin: String,
+    /// Red.
     pub red: u8,
+    /// Green.
     pub green: u8,
+    /// Blue.
     pub blue: u8,
+    /// Alpha
     pub alpha: u8,
 }
 
+// `origin` should not be compared.
 impl PartialEq for RgbColor {
     fn eq(&self, other: &Self) -> bool {
         self.red == other.red
@@ -40,20 +49,20 @@ impl Color for RgbColor {
     }
 
     fn as_hsl(&self) -> HslColor {
-        let red_ranged = self.red as f32 / 255.0;
-        let green_ranged = self.green as f32 / 255.0;
-        let blue_ranged = self.blue as f32 / 255.0;
+        let red_ranged = f32::from(self.red) / 255.0;
+        let green_ranged = f32::from(self.green) / 255.0;
+        let blue_ranged = f32::from(self.blue) / 255.0;
 
         let mut vec = vec![red_ranged, green_ranged, blue_ranged];
         vec.sort_by(|a, b| a.partial_cmp(b).unwrap_or(Equal));
         let (min, max) = (vec[0], vec[2]);
         let delta = max - min;
 
-        let hue = if max == min {
+        let hue = if (max - min).abs() < std::f32::EPSILON {
             0.0
-        } else if red_ranged == max {
+        } else if (red_ranged - max).abs() < std::f32::EPSILON {
             (green_ranged - blue_ranged) / delta
-        } else if green_ranged == max {
+        } else if (green_ranged - max).abs() < std::f32::EPSILON {
             2.0 + (blue_ranged - red_ranged) / delta
         } else {
             4.0 + (red_ranged - green_ranged) / delta
@@ -65,7 +74,7 @@ impl Color for RgbColor {
 
         let lightness = (min + max) / 2.0;
 
-        let saturation = if max == min {
+        let saturation = if (max - min).abs() < std::f32::EPSILON {
             0.0
         } else if lightness <= 0.5 {
             delta / (max + min)
@@ -75,22 +84,27 @@ impl Color for RgbColor {
 
         HslColor {
             origin: self.origin.clone(),
-            hue: hue,
-            saturation: saturation,
-            lightness: lightness,
+            hue,
+            saturation,
+            lightness,
             alpha: self.alpha,
         }
     }
 }
 
+/// The error type which can be occured when parse hex color.
 #[derive(Debug, PartialEq)]
 pub enum ColorParseError {
+    /// When the string is empty
     StringEmpty,
+    /// When the string does not starts with `#` character.
     NotAHexColor,
+    /// When the string starts with `#` character but trailing letters are invalid.
     InvalidHexColor,
 }
 
 impl RgbColor {
+    /// Parses color from the string by hex notation.
     pub fn parse_hex(input: &str) -> Result<RgbColor, ColorParseError> {
         if input.is_empty() {
             Err(ColorParseError::StringEmpty)?

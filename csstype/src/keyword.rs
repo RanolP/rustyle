@@ -1,16 +1,24 @@
 use super::Cssifiable;
 
+/// A type of CSS keywords.
 #[derive(Clone, Debug, PartialEq)]
 pub enum CssKeywordType {
+    /// Wide css keyword `initial`.
     Initial,
+    /// Wide css keyword `inherit`.
     Inherit,
+    /// Wide css keyword `unset`.
     Unset,
+    /// Not wide css keywords.
     NotWide(String),
 }
 
+/// CSS keyword value.
 #[derive(Clone, Debug)]
 pub struct CssKeyword {
+    /// Original text.
     pub origin: String,
+    /// The type of keyword.
     pub keyword_type: CssKeywordType,
 }
 
@@ -40,7 +48,7 @@ impl From<String> for CssKeyword {
 
         CssKeyword {
             origin: input.clone(),
-            keyword_type: keyword_type,
+            keyword_type,
         }
     }
 }

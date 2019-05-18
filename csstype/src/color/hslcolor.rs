@@ -1,11 +1,19 @@
 use crate::{Color, RgbColor};
 
+/// CSS [`Color`] which stores color by HSL system.
+///
+/// [`Color`]: crate::color::Color
 #[derive(Debug)]
 pub struct HslColor {
+    /// Original text.
     pub origin: String,
+    /// Hue.
     pub hue: f32,
+    /// Saturation.
     pub saturation: f32,
+    /// Lightness.
     pub lightness: f32,
+    /// Alpha.
     pub alpha: u8,
 }
 

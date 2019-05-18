@@ -2,13 +2,18 @@ use crate::Cssifiable;
 use crate::{HslColor, RgbColor};
 use std::fmt::Debug;
 
+/// A trait which refers color type of CSS.
 pub trait Color: Debug {
+    /// Original text.
     fn origin(&self) -> String;
 
+    /// Color alpha value.
     fn alpha(&self) -> u8;
 
+    /// Convert self as a RGB Color.
     fn as_rgb(&self) -> RgbColor;
 
+    /// Convert self as a HSL Color.
     fn as_hsl(&self) -> HslColor;
 }
 
@@ -39,9 +44,9 @@ impl<T: Color + 'static> Cssifiable for T {
         let cssified = self.cssify();
         let cssified_without_sharp = &cssified[1..];
         // we knew the cssified result(does not including #) has a length 6 or 8
-        let (even, odd): (Vec<(usize, char)>, Vec<(usize, char)>) = cssified_without_sharp
+        let (even, odd) = cssified_without_sharp
             .char_indices()
-            .partition(|(index, _)| index % 2 == 0);
+            .partition::<(Vec<(usize, char)>), _>(|(index, _)| index % 2 == 0);
 
         for ((_, a), (_, b)) in odd.iter().zip(even.iter()) {
             if a != b {
