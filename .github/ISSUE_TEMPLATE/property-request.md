@@ -9,10 +9,10 @@ assignees: ''
 
 ## Prerequisites
 
-- [ ] There is no issue about this.
-- [ ] I'm running the latest version.
-- [ ] It is add request of property.
-- [ ] I understand that my issue won't be accepted, or won't be focused.
+- There is no issue about this.
+- I'm running the latest version.
+- It is add request of property.
+- I understand that my issue won't be accepted, or won't be focused.
 
 ## Specification
 

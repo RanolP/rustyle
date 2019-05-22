@@ -9,9 +9,9 @@ assignees: ''
 
 ## Prerequisites
 
-- [ ] There is no issue about this.
-- [ ] I've found the issue from the latest version.
-- [ ] I understand that my issue won't be accepted, or won't be focused.
+- There is no issue about this.
+- I've found the issue from the latest version.
+- I understand that my issue won't be accepted, or won't be focused.
 
 ## Description
 

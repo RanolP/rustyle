@@ -7,7 +7,7 @@
 - [ ] Someone created an issue before creating this pull request.
 - [ ] I Agree that any change needs to be discussed before proceeding, And sometimes pull request can be rejected.
 - [ ] I provided enough information which makes easier to review my pull request.
-- [ ] I followed the [commit guideline](https://conventionalcommits.org) and code style guideline(tslint).
+- [ ] I followed the [commit guideline](https://conventionalcommits.org) and code style guideline(rustfmt).
 
 ## Extra Information
 

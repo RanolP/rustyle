@@ -9,9 +9,9 @@ assignees: ''
 
 ## Prerequisites
 
-- [ ] There is no issue about this.
-- [ ] I'm running the latest version.
-- [ ] I've tried the nightly version of rust.
+- There is no issue about this.
+- I'm running the latest version.
+- I've tried the nightly version of rust.
 
 ## Description
 
