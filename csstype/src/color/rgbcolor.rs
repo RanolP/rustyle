@@ -105,6 +105,9 @@ pub enum ColorParseError {
 
 impl RgbColor {
     /// Parses color from the string by hex notation.
+    ///
+    /// # Arguments
+    /// - `input` - The string to parse.
     pub fn parse_hex(input: &str) -> Result<RgbColor, ColorParseError> {
         if input.is_empty() {
             Err(ColorParseError::StringEmpty)?

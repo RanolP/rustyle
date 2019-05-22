@@ -3,13 +3,13 @@ use super::Cssifiable;
 /// A type of CSS keywords.
 #[derive(Clone, Debug, PartialEq)]
 pub enum CssKeywordType {
-    /// Wide css keyword `initial`.
+    /// Wide CSS keyword `initial`.
     Initial,
-    /// Wide css keyword `inherit`.
+    /// Wide CSS keyword `inherit`.
     Inherit,
-    /// Wide css keyword `unset`.
+    /// Wide CSS keyword `unset`.
     Unset,
-    /// Not wide css keywords.
+    /// Not wide CSS keywords.
     NotWide(String),
 }
 

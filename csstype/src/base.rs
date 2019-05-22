@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::fmt::Debug;
 
-/// A trait can be convert self into a [`Any`] type.
+/// A trait can convert self as an [`Any`] type.
 ///
 /// [`Any`]: std::any::Any
 pub trait AsAny {
@@ -9,7 +9,7 @@ pub trait AsAny {
     fn as_any(&self) -> &dyn Any;
 }
 
-/// A trait can be converted to valid css value.
+/// A trait can be converted to a valid css value.
 pub trait Cssifiable: AsAny + Any + Debug {
     /// Original text.
     fn origin(&self) -> String;
