@@ -17,3 +17,6 @@ Cargo.lock
 
 # Generated for testing
 rustyle/
+
+# IDE configs
+.vscode
