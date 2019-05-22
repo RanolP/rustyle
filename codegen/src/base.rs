@@ -8,7 +8,13 @@ use runtime::CompileContext;
 /// 
 /// [`Node`]: node::Node
 pub trait CodeGenerator: Node {
-    fn generate_code(&self, base_class: &str, _: &mut CompileContext) -> String {
+    /// Generate code with passed contextual informations.
+    /// 
+    /// # Arguments
+    /// - `base_class` - The base selector.
+    /// - `context` - The compilation context.
+    #[allow(unused)]
+    fn generate_code(&self, base_class: &str, context: &mut CompileContext) -> String {
         self.span()
             .unwrap_or(Span::call_site())
             .error(format!(

@@ -7,6 +7,9 @@ use std::collections::HashMap;
 use std::slice::SliceConcatExt;
 
 impl CodeGenerator for RulesetNode {
+    /// Generate code from [`RulesetNode`].
+    /// 
+    /// [`DeclarationNode`]: node::RulesetNode
     fn generate_code(&self, base_class: &str, context: &mut CompileContext) -> String {
         if self.ruleset_type == RulesetType::Root {
             let root_metadata_processors = ROOT_METADATA_PROCESSORS.lock().unwrap();

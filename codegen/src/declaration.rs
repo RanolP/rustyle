@@ -8,6 +8,9 @@ use runtime::CompileContext;
 use std::collections::HashMap;
 
 impl CodeGenerator for DeclarationNode {
+    /// Generate code from [`DeclarationNode`]. Does not depends on any contextual values.
+    /// 
+    /// [`DeclarationNode`]: node::DeclarationNode
     fn generate_code(&self, _: &str, _: &mut CompileContext) -> String {
         let rule_metadata_processors = RULE_METADATA_PROCESSORS.lock().unwrap();
 
